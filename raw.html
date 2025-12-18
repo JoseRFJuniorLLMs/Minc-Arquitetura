@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Arquitetura Data Lakehouse - MinC - Camada RAW</title>
+    <title>Raw Layer - Ingestão de Dados Brutos</title>
     <style>
         * {
             margin: 0;
@@ -159,11 +159,16 @@
     <nav class="navbar">
         <div class="nav-container">
             <div class="logo">
-                🏛️ MinC Data Lakehouse
+                🏛️ MinC
             </div>
             <ul class="nav-menu">
                 <li class="nav-item">
-                    <a href="#raw" class="nav-link active">
+                    <a href="#inicio" class="nav-link">
+                        🏠 Início
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="#raw" class="nav-link">
                         <span class="layer-badge badge-raw">RAW</span>
                         Camada Raw
                     </a>
@@ -181,7 +186,7 @@
                     </a>
                 </li>
                 <li class="nav-item">
-                    <a href="#gold" class="nav-link">
+                    <a href="#gold" class="nav-link active">
                         <span class="layer-badge badge-gold">GOLD</span>
                         Camada Gold
                     </a>
@@ -189,7 +194,6 @@
             </ul>
         </div>
     </nav>
-
     <div class="container">
         <div class="content-card">
             <div class="breadcrumb">
@@ -214,7 +218,7 @@
 
                     <text x="700" y="35" font-family="Arial, sans-serif" font-size="24" font-weight="bold"
                         text-anchor="middle" fill="#2C3E50">
-                        Camada RAW - Ingestão de Dados Brutos
+                        Raw Layer - Preservação da Verdade dos Dados
                     </text>
                     <text x="700" y="60" font-family="Arial, sans-serif" font-size="14" text-anchor="middle"
                         fill="#7F8C8D">
@@ -498,7 +502,8 @@
                     'raw': 'raw.html',
                     'bronze': 'bronze.html',
                     'silver': 'datavault.html',
-                    'gold': 'gold.html'
+                    'gold': 'gold.html',
+                    'inicio': 'index.html'
                 };
 
                 // Navega para a página correspondente

@@ -185,6 +185,24 @@
             height: auto;
         }
 
+        /* Efeito hover nos cards do SVG */
+        svg a {
+            cursor: pointer;
+        }
+
+        svg a rect {
+            transition: all 0.3s ease;
+        }
+
+        svg a:hover rect {
+            filter: brightness(1.15) drop-shadow(0px 4px 8px rgba(0, 0, 0, 0.4));
+            stroke-width: 4;
+        }
+
+        svg a:hover text {
+            filter: brightness(1.1);
+        }
+
         .tech-stack {
             background: #f8f9fa;
             border-radius: 12px;
@@ -223,13 +241,89 @@
                 grid-template-columns: 1fr;
             }
         }
+
+        /* Balão Tooltip */
+        .tooltip-balloon {
+            position: fixed;
+            background: linear-gradient(135deg, #2d3748 0%, #1a202c 100%);
+            color: white;
+            padding: 1.5rem 2rem;
+            border-radius: 16px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5), 0 0 0 2px rgba(255, 215, 0, 0.3);
+            max-width: 400px;
+            z-index: 1000;
+            opacity: 0;
+            pointer-events: none;
+            transform: translateY(-10px) translateX(-50%);
+            transition: opacity 0.3s ease, transform 0.3s ease;
+        }
+
+        .tooltip-balloon.show {
+            opacity: 1;
+            transform: translateY(0) translateX(-50%);
+        }
+
+        .tooltip-balloon::after {
+            content: '';
+            position: absolute;
+            bottom: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 0;
+            height: 0;
+            border-left: 12px solid transparent;
+            border-right: 12px solid transparent;
+            border-top: 12px solid #2d3748;
+        }
+
+        .tooltip-balloon h4 {
+            font-size: 1.3rem;
+            margin-bottom: 0.8rem;
+            color: #ffd700;
+        }
+
+        .tooltip-balloon p {
+            font-size: 0.95rem;
+            line-height: 1.6;
+            margin-bottom: 1rem;
+            color: rgba(255, 255, 255, 0.9);
+        }
+
+        .tooltip-balloon .click-hint {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            padding: 0.6rem 1.2rem;
+            background: rgba(255, 215, 0, 0.15);
+            border: 2px solid rgba(255, 215, 0, 0.3);
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 0.9rem;
+            color: #ffd700;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+
+            0%,
+            100% {
+                transform: scale(1);
+                box-shadow: 0 0 0 0 rgba(255, 215, 0, 0.4);
+            }
+
+            50% {
+                transform: scale(1.03);
+                box-shadow: 0 0 0 8px rgba(255, 215, 0, 0);
+            }
+        }
     </style>
 </head>
 
 <body>
     <div class="container">
         <div class="header">
-            <h1>🏛️ Data Lakehouse - Ministério da Cultura</h1>
+            <h1>🏛️ Sovereign Data Lakehouse - SNIIC</h1>
             <p>Arquitetura Completa de Dados com Medallion Architecture</p>
         </div>
 
@@ -263,25 +357,29 @@
                         </marker>
                     </defs>
 
-                    <!-- Fontes de Dados -->
+                    <!-- Título do diagrama -->
                     <text x="600" y="40" font-family="Arial" font-size="20" font-weight="bold" text-anchor="middle"
                         fill="#2C3E50">
                         🔄 Fluxo de Dados - Medallion Architecture
                     </text>
 
-                    <g filter="url(#shadow)">
-                        <rect x="50" y="80" width="180" height="100" rx="8" fill="#805AD5" stroke="#6B46C1"
-                            stroke-width="2" />
-                        <text x="140" y="110" font-family="Arial" font-size="14" font-weight="bold" text-anchor="middle"
-                            fill="white">
-                            📊 Fontes de Dados
-                        </text>
-                        <text x="60" y="135" font-family="monospace" font-size="10" fill="white">• Sistema Salic</text>
-                        <text x="60" y="152" font-family="monospace" font-size="10" fill="white">• Mapas
-                            Culturais</text>
-                        <text x="60" y="169" font-family="monospace" font-size="10" fill="white">• Planilhas
-                            Excel</text>
-                    </g>
+                    <!-- Fontes de Dados -->
+                    <a href="fontes.html" style="cursor: pointer;">
+                        <g filter="url(#shadow)">
+                            <rect x="50" y="80" width="180" height="100" rx="8" fill="#805AD5" stroke="#6B46C1"
+                                stroke-width="3" style="transition: all 0.3s ease;" />
+                            <text x="140" y="110" font-family="Arial" font-size="14" font-weight="bold"
+                                text-anchor="middle" fill="white">
+                                📊 Fontes de Dados
+                            </text>
+                            <text x="60" y="135" font-family="monospace" font-size="10" fill="white">• Sistema
+                                Salic</text>
+                            <text x="60" y="152" font-family="monospace" font-size="10" fill="white">• Mapas
+                                Culturais</text>
+                            <text x="60" y="169" font-family="monospace" font-size="10" fill="white">• Planilhas
+                                Excel</text>
+                        </g>
+                    </a>
 
                     <!-- RAW -->
                     <path d="M 230 130 L 290 130" stroke="#667eea" stroke-width="3" marker-end="url(#arrow)" />
@@ -503,57 +601,385 @@
             </div>
         </div>
 
-        <div class="layers-grid">
-            <div class="layer-card raw" onclick="window.location.href='raw.html'">
-                <span class="layer-badge badge-raw">CAMADA RAW</span>
-                <h3>📥 Ingestão de Dados Brutos</h3>
-                <ul>
-                    <li>Dados originais sem transformação</li>
-                    <li>Múltiplas fontes (APIs, CSV, Excel)</li>
-                    <li>Formato Parquet com Delta Lake</li>
-                    <li>Imutabilidade garantida</li>
-                    <li>Particionamento temporal</li>
-                </ul>
-                <a href="raw.html" class="cta-button">Explorar RAW →</a>
+        <!-- Seção Governança Ativa Transversal -->
+        <div class="architecture-card"
+            style="margin-top: 3rem; background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);">
+            <h2
+                style="color: #2c3e50; margin-bottom: 1.5rem; display: flex; align-items: center; gap: 0.5rem; font-size: 2rem;">
+                <span style="font-size: 2.5rem;">🛡️</span>
+                Governança Ativa - Camada Transversal
+            </h2>
+
+            <div
+                style="background: white; padding: 1.5rem; border-radius: 12px; border-left: 4px solid #667eea; margin-bottom: 2rem;">
+                <p style="color: #4a5568; line-height: 1.8; font-size: 1.05rem;">
+                    A governança não é uma camada isolada — ela permeia <strong>todas</strong> as camadas do Lakehouse.
+                    Linhagem automática, data contracts, quality gates, segurança ABAC/RBAC e observabilidade são
+                    <strong>enforcement técnico executável</strong>, não apenas documentação. Compliance by design para
+                    LGPD e TCU.
+                </p>
             </div>
 
-            <div class="layer-card bronze" onclick="window.location.href='bronze.html'">
-                <span class="layer-badge badge-bronze">CAMADA BRONZE</span>
-                <h3>🧹 Limpeza e Padronização</h3>
-                <ul>
-                    <li>Schema enforcement com Spark</li>
-                    <li>Padronização de CPF/CNPJ</li>
-                    <li>Deduplicação inteligente</li>
-                    <li>Validação de qualidade</li>
-                    <li>Pipeline dbt automatizado</li>
-                </ul>
-                <a href="bronze.html" class="cta-button">Explorar BRONZE →</a>
+            <!-- Diagrama de Governança Transversal -->
+            <div style="background: white; padding: 2rem; border-radius: 12px; margin-bottom: 2rem;">
+                <h3 style="color: #667eea; margin-bottom: 1.5rem; text-align: center; font-size: 1.5rem;">
+                    🏗️ Arquitetura de Governança Transversal
+                </h3>
+
+                <svg viewBox="0 0 1400 900" xmlns="http://www.w3.org/2000/svg" style="max-width: 100%; height: auto;">
+                    <!-- Definições -->
+                    <defs>
+                        <linearGradient id="govGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+                            <stop offset="0%" style="stop-color:#667eea;stop-opacity:1" />
+                            <stop offset="100%" style="stop-color:#764ba2;stop-opacity:1" />
+                        </linearGradient>
+                        <linearGradient id="layerGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+                            <stop offset="0%" style="stop-color:#e53e3e;stop-opacity:0.3" />
+                            <stop offset="33%" style="stop-color:#cd7f32;stop-opacity:0.3" />
+                            <stop offset="66%" style="stop-color:#c0c0c0;stop-opacity:0.3" />
+                            <stop offset="100%" style="stop-color:#ffd700;stop-opacity:0.3" />
+                        </linearGradient>
+                        <filter id="shadow">
+                            <feDropShadow dx="2" dy="2" stdDeviation="3" flood-opacity="0.3" />
+                        </filter>
+                    </defs>
+
+                    <!-- Título -->
+                    <text x="700" y="30" font-family="Arial" font-size="18" font-weight="bold" text-anchor="middle"
+                        fill="#2C3E50">
+                        Governança permeia todas as camadas (Raw → Bronze → Silver → Gold)
+                    </text>
+
+                    <!-- Camadas de Dados (horizontal) -->
+                    <rect x="50" y="80" width="1300" height="120" rx="8" fill="url(#layerGrad)" stroke="#95A5A6"
+                        stroke-width="2" />
+
+                    <!-- RAW -->
+                    <rect x="80" y="100" width="250" height="80" rx="6" fill="#e53e3e" opacity="0.8"
+                        filter="url(#shadow)" />
+                    <text x="205" y="135" font-family="Arial" font-size="14" font-weight="bold" text-anchor="middle"
+                        fill="white">📥 RAW LAYER</text>
+                    <text x="205" y="155" font-family="Arial" font-size="10" text-anchor="middle" fill="white">Schema
+                        Registry</text>
+                    <text x="205" y="170" font-family="Arial" font-size="10" text-anchor="middle" fill="white">Metadata
+                        Extraction</text>
+
+                    <!-- BRONZE -->
+                    <rect x="380" y="100" width="250" height="80" rx="6" fill="#cd7f32" opacity="0.8"
+                        filter="url(#shadow)" />
+                    <text x="505" y="135" font-family="Arial" font-size="14" font-weight="bold" text-anchor="middle"
+                        fill="white">🧹 BRONZE LAYER</text>
+                    <text x="505" y="155" font-family="Arial" font-size="10" text-anchor="middle" fill="white">Data
+                        Contracts</text>
+                    <text x="505" y="170" font-family="Arial" font-size="10" text-anchor="middle" fill="white">Quality
+                        Gates</text>
+
+                    <!-- SILVER -->
+                    <rect x="680" y="100" width="250" height="80" rx="6" fill="#c0c0c0" opacity="0.8"
+                        filter="url(#shadow)" />
+                    <text x="805" y="135" font-family="Arial" font-size="14" font-weight="bold" text-anchor="middle"
+                        fill="#333">🔗 SILVER LAYER</text>
+                    <text x="805" y="155" font-family="Arial" font-size="10" text-anchor="middle"
+                        fill="#333">ABAC/RBAC</text>
+                    <text x="805" y="170" font-family="Arial" font-size="10" text-anchor="middle" fill="#333">Row-Level
+                        Security</text>
+
+                    <!-- GOLD -->
+                    <rect x="980" y="100" width="250" height="80" rx="6" fill="#ffd700" opacity="0.8"
+                        filter="url(#shadow)" />
+                    <text x="1105" y="135" font-family="Arial" font-size="14" font-weight="bold" text-anchor="middle"
+                        fill="#333">📊 GOLD LAYER</text>
+                    <text x="1105" y="155" font-family="Arial" font-size="10" text-anchor="middle" fill="#333">SLA
+                        Monitoring</text>
+                    <text x="1105" y="170" font-family="Arial" font-size="10" text-anchor="middle" fill="#333">Access
+                        Logs</text>
+
+                    <!-- Pilares de Governança (vertical) -->
+
+                    <!-- Pilar 1: Observabilidade -->
+                    <rect x="80" y="250" width="280" height="200" rx="10" fill="url(#govGrad)" opacity="0.9"
+                        filter="url(#shadow)" />
+                    <text x="220" y="280" font-family="Arial" font-size="16" font-weight="bold" text-anchor="middle"
+                        fill="white">
+                        📊 OBSERVABILIDADE
+                    </text>
+                    <line x1="220" y1="250" x2="220" y2="200" stroke="#667eea" stroke-width="3"
+                        stroke-dasharray="5,5" />
+
+                    <text x="95" y="310" font-family="Arial" font-size="12" fill="white" font-weight="bold">•
+                        OpenLineage</text>
+                    <text x="105" y="330" font-family="Arial" font-size="10" fill="#ecf0f1">Linhagem automática de
+                        dados</text>
+                    <text x="105" y="345" font-family="Arial" font-size="10" fill="#ecf0f1">Column-level tracking</text>
+
+                    <text x="95" y="370" font-family="Arial" font-size="12" fill="white" font-weight="bold">• Marquez
+                        UI</text>
+                    <text x="105" y="390" font-family="Arial" font-size="10" fill="#ecf0f1">Navegação visual de
+                        lineage</text>
+
+                    <text x="95" y="415" font-family="Arial" font-size="12" fill="white" font-weight="bold">• Monte
+                        Carlo</text>
+                    <text x="105" y="435" font-family="Arial" font-size="10" fill="#ecf0f1">Data observability
+                        platform</text>
+
+                    <!-- Pilar 2: Catálogo -->
+                    <rect x="390" y="250" width="280" height="200" rx="10" fill="url(#govGrad)" opacity="0.9"
+                        filter="url(#shadow)" />
+                    <text x="530" y="280" font-family="Arial" font-size="16" font-weight="bold" text-anchor="middle"
+                        fill="white">
+                        📚 CATÁLOGO & DISCOVERY
+                    </text>
+                    <line x1="530" y1="250" x2="530" y2="200" stroke="#667eea" stroke-width="3"
+                        stroke-dasharray="5,5" />
+
+                    <text x="405" y="310" font-family="Arial" font-size="12" fill="white" font-weight="bold">• DataHub /
+                        Amundsen</text>
+                    <text x="415" y="330" font-family="Arial" font-size="10" fill="#ecf0f1">Catálogo federado com
+                        busca</text>
+                    <text x="415" y="345" font-family="Arial" font-size="10" fill="#ecf0f1">Business glossary
+                        integrado</text>
+
+                    <text x="405" y="370" font-family="Arial" font-size="12" fill="white" font-weight="bold">•
+                        ElasticSearch</text>
+                    <text x="415" y="390" font-family="Arial" font-size="10" fill="#ecf0f1">Search semântico de
+                        datasets</text>
+
+                    <text x="405" y="415" font-family="Arial" font-size="12" fill="white" font-weight="bold">• Tags &
+                        Ownership</text>
+                    <text x="415" y="435" font-family="Arial" font-size="10" fill="#ecf0f1">#PII #LGPD
+                        #TCU-Auditável</text>
+
+                    <!-- Pilar 3: Segurança -->
+                    <rect x="700" y="250" width="280" height="200" rx="10" fill="url(#govGrad)" opacity="0.9"
+                        filter="url(#shadow)" />
+                    <text x="840" y="280" font-family="Arial" font-size="16" font-weight="bold" text-anchor="middle"
+                        fill="white">
+                        🔐 SEGURANÇA ATIVA
+                    </text>
+                    <line x1="840" y1="250" x2="840" y2="200" stroke="#667eea" stroke-width="3"
+                        stroke-dasharray="5,5" />
+
+                    <text x="715" y="310" font-family="Arial" font-size="12" fill="white" font-weight="bold">•
+                        ABAC/RBAC</text>
+                    <text x="725" y="330" font-family="Arial" font-size="10" fill="#ecf0f1">Policies por role e
+                        atributos</text>
+                    <text x="725" y="345" font-family="Arial" font-size="10" fill="#ecf0f1">Row-level security</text>
+
+                    <text x="715" y="370" font-family="Arial" font-size="12" fill="white" font-weight="bold">•
+                        Mascaramento PII</text>
+                    <text x="725" y="390" font-family="Arial" font-size="10" fill="#ecf0f1">CPF/Email dinâmico por
+                        role</text>
+
+                    <text x="715" y="415" font-family="Arial" font-size="12" fill="white" font-weight="bold">• Unity
+                        Catalog</text>
+                    <text x="725" y="435" font-family="Arial" font-size="10" fill="#ecf0f1">Unified governance
+                        (Databricks)</text>
+
+                    <!-- Pilar 4: Quality & Contracts -->
+                    <rect x="1010" y="250" width="280" height="200" rx="10" fill="url(#govGrad)" opacity="0.9"
+                        filter="url(#shadow)" />
+                    <text x="1150" y="280" font-family="Arial" font-size="16" font-weight="bold" text-anchor="middle"
+                        fill="white">
+                        ✅ QUALITY & CONTRACTS
+                    </text>
+                    <line x1="1150" y1="250" x2="1150" y2="200" stroke="#667eea" stroke-width="3"
+                        stroke-dasharray="5,5" />
+
+                    <text x="1025" y="310" font-family="Arial" font-size="12" fill="white" font-weight="bold">• Data
+                        Contracts</text>
+                    <text x="1035" y="330" font-family="Arial" font-size="10" fill="#ecf0f1">YAML schemas entre
+                        camadas</text>
+                    <text x="1035" y="345" font-family="Arial" font-size="10" fill="#ecf0f1">Breaking change
+                        protection</text>
+
+                    <text x="1025" y="370" font-family="Arial" font-size="12" fill="white" font-weight="bold">• Great
+                        Expectations</text>
+                    <text x="1035" y="390" font-family="Arial" font-size="10" fill="#ecf0f1">Quality gates
+                        automáticos</text>
+
+                    <text x="1025" y="415" font-family="Arial" font-size="12" fill="white" font-weight="bold">• SLA
+                        Tracking</text>
+                    <text x="1035" y="435" font-family="Arial" font-size="10" fill="#ecf0f1">Freshness < 1h
+                            (critical)</text>
+
+                            <!-- Benefícios Integrados -->
+                            <rect x="50" y="500" width="1300" height="350" rx="10" fill="#ecf0f1" stroke="#95A5A6"
+                                stroke-width="2" />
+                            <text x="700" y="535" font-family="Arial" font-size="18" font-weight="bold"
+                                text-anchor="middle" fill="#2C3E50">
+                                🎯 Governança como Código Executável
+                            </text>
+
+                            <!-- Benefício 1 -->
+                            <rect x="80" y="560" width="300" height="120" rx="8" fill="white" filter="url(#shadow)" />
+                            <circle cx="120" cy="590" r="20" fill="#27AE60" />
+                            <text x="120" y="598" font-family="Arial" font-size="18" font-weight="bold"
+                                text-anchor="middle" fill="white">1</text>
+                            <text x="155" y="585" font-family="Arial" font-size="13" font-weight="bold"
+                                fill="#2C3E50">Linhagem End-to-End</text>
+                            <text x="155" y="605" font-family="Arial" font-size="10" fill="#7F8C8D">Excel → Raw → Bronze
+                                → Silver → Gold → BI</text>
+                            <text x="155" y="620" font-family="Arial" font-size="10" fill="#7F8C8D">Rastreamento
+                                automático de cada coluna</text>
+                            <text x="155" y="635" font-family="Arial" font-size="10" fill="#7F8C8D">Impact analysis: "Se
+                                mudar Raw, o que quebra?"</text>
+                            <text x="155" y="660" font-family="Arial" font-size="9" font-style="italic"
+                                fill="#95A5A6">Tool: OpenLineage + Marquez + DataHub</text>
+
+                            <!-- Benefício 2 -->
+                            <rect x="410" y="560" width="300" height="120" rx="8" fill="white" filter="url(#shadow)" />
+                            <circle cx="450" cy="590" r="20" fill="#3498DB" />
+                            <text x="450" y="598" font-family="Arial" font-size="18" font-weight="bold"
+                                text-anchor="middle" fill="white">2</text>
+                            <text x="485" y="585" font-family="Arial" font-size="13" font-weight="bold"
+                                fill="#2C3E50">Contratos Auto-validados</text>
+                            <text x="485" y="605" font-family="Arial" font-size="10" fill="#7F8C8D">Raw quebra contrato
+                                → Pipeline para</text>
+                            <text x="485" y="620" font-family="Arial" font-size="10" fill="#7F8C8D">Bronze não cumpre
+                                SLA → Alert Slack</text>
+                            <text x="485" y="635" font-family="Arial" font-size="10" fill="#7F8C8D">Silver muda schema →
+                                Requer aprovação</text>
+                            <text x="485" y="660" font-family="Arial" font-size="9" font-style="italic"
+                                fill="#95A5A6">Tool: Data Contract CLI + dbt contracts</text>
+
+                            <!-- Benefício 3 -->
+                            <rect x="740" y="560" width="300" height="120" rx="8" fill="white" filter="url(#shadow)" />
+                            <circle cx="780" cy="590" r="20" fill="#E74C3C" />
+                            <text x="780" y="598" font-family="Arial" font-size="18" font-weight="bold"
+                                text-anchor="middle" fill="white">3</text>
+                            <text x="815" y="585" font-family="Arial" font-size="13" font-weight="bold"
+                                fill="#2C3E50">Segurança em Camadas</text>
+                            <text x="815" y="605" font-family="Arial" font-size="10" fill="#7F8C8D">Analista: CPF
+                                mascarado (***.***.123-45)</text>
+                            <text x="815" y="620" font-family="Arial" font-size="10" fill="#7F8C8D">Auditor TCU: CPF
+                                completo + histórico</text>
+                            <text x="815" y="635" font-family="Arial" font-size="10" fill="#7F8C8D">BI Dashboard: Apenas
+                                agregações (NULL)</text>
+                            <text x="815" y="660" font-family="Arial" font-size="9" font-style="italic"
+                                fill="#95A5A6">Tool: Unity Catalog + Delta Lake RLS</text>
+
+                            <!-- Benefício 4 -->
+                            <rect x="1070" y="560" width="300" height="120" rx="8" fill="white" filter="url(#shadow)" />
+                            <circle cx="1110" cy="590" r="20" fill="#9B59B6" />
+                            <text x="1110" y="598" font-family="Arial" font-size="18" font-weight="bold"
+                                text-anchor="middle" fill="white">4</text>
+                            <text x="1145" y="585" font-family="Arial" font-size="13" font-weight="bold"
+                                fill="#2C3E50">Auditoria Contínua</text>
+                            <text x="1145" y="605" font-family="Arial" font-size="10" fill="#7F8C8D">Logs de acesso a
+                                dados sensíveis</text>
+                            <text x="1145" y="620" font-family="Arial" font-size="10" fill="#7F8C8D">Histórico completo
+                                (time travel)</text>
+                            <text x="1145" y="635" font-family="Arial" font-size="10" fill="#7F8C8D">Conformidade TCU +
+                                LGPD by design</text>
+                            <text x="1145" y="660" font-family="Arial" font-size="9" font-style="italic"
+                                fill="#95A5A6">Tool: Delta Lake + Satellites (Data Vault)</text>
+
+                            <!-- Compliance -->
+                            <rect x="80" y="710" width="600" height="110" rx="8" fill="white" filter="url(#shadow)" />
+                            <text x="380" y="740" font-family="Arial" font-size="14" font-weight="bold"
+                                text-anchor="middle" fill="#2C3E50">
+                                🏛️ Compliance TCU
+                            </text>
+                            <text x="95" y="765" font-family="Arial" font-size="11" fill="#4a5568">✓ Rastreabilidade
+                                completa de transformações</text>
+                            <text x="95" y="782" font-family="Arial" font-size="11" fill="#4a5568">✓ Logs de acesso
+                                auditáveis</text>
+                            <text x="95" y="799" font-family="Arial" font-size="11" fill="#4a5568">✓ Time travel: "Como
+                                estava em 15/03/2023?"</text>
+                            <text x="380" y="765" font-family="Arial" font-size="11" fill="#4a5568">✓ Segregação de
+                                funções (ABAC/RBAC)</text>
+                            <text x="380" y="782" font-family="Arial" font-size="11" fill="#4a5568">✓ Integridade de
+                                dados (Delta Lake ACID)</text>
+                            <text x="380" y="799" font-family="Arial" font-size="11" fill="#4a5568">✓ Documentação
+                                automática (DataHub)</text>
+
+                            <rect x="710" y="710" width="660" height="110" rx="8" fill="white" filter="url(#shadow)" />
+                            <text x="1040" y="740" font-family="Arial" font-size="14" font-weight="bold"
+                                text-anchor="middle" fill="#2C3E50">
+                                🔒 Compliance LGPD
+                            </text>
+                            <text x="725" y="765" font-family="Arial" font-size="11" fill="#4a5568">✓ Minimização de
+                                dados (mascaramento por role)</text>
+                            <text x="725" y="782" font-family="Arial" font-size="11" fill="#4a5568">✓ Direito ao
+                                esquecimento (DELETE propaga camadas)</text>
+                            <text x="725" y="799" font-family="Arial" font-size="11" fill="#4a5568">✓ Pseudonimização
+                                (CPF_HASH irreversível)</text>
+                            <text x="1040" y="765" font-family="Arial" font-size="11" fill="#4a5568">✓ Consentimento
+                                rastreável (Satellites)</text>
+                            <text x="1040" y="782" font-family="Arial" font-size="11" fill="#4a5568">✓ Portabilidade
+                                (Delta Sharing)</text>
+                            <text x="1040" y="799" font-family="Arial" font-size="11" fill="#4a5568">✓ Logs de acesso a
+                                dados pessoais</text>
+                </svg>
             </div>
 
-            <div class="layer-card silver" onclick="window.location.href='datavault.html'">
-                <span class="layer-badge badge-silver">CAMADA SILVER</span>
-                <h3>🔗 Modelagem Data Vault 2.1</h3>
-                <ul>
-                    <li>Hubs: identidades únicas</li>
-                    <li>Links: relacionamentos M:N</li>
-                    <li>Satellites: contexto histórico</li>
-                    <li>Time travel completo</li>
-                    <li>Auditável pelo TCU</li>
-                </ul>
-                <a href="datavault.html" class="cta-button">Explorar SILVER →</a>
-            </div>
+            <!-- Stack Completo de Governança -->
+            <div
+                style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 2rem; border-radius: 12px; color: white; margin-top: 2rem;">
+                <h3 style="margin-bottom: 1.5rem; text-align: center; font-size: 1.5rem;">
+                    🛠️ Stack Completo de Governança Ativa
+                </h3>
 
-            <div class="layer-card gold" onclick="window.location.href='gold.html'">
-                <span class="layer-badge badge-gold">CAMADA GOLD</span>
-                <h3>📊 Data Marts Analíticos</h3>
-                <ul>
-                    <li>Star Schema otimizado</li>
-                    <li>Agregações pré-computadas</li>
-                    <li>KPIs de negócio</li>
-                    <li>Consumo por BI tools</li>
-                    <li>Business-friendly</li>
-                </ul>
-                <a href="gold.html" class="cta-button">Explorar GOLD →</a>
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.5rem;">
+                    <div
+                        style="background: rgba(255,255,255,0.1); padding: 1.5rem; border-radius: 12px; backdrop-filter: blur(10px);">
+                        <h4 style="margin-bottom: 1rem; font-size: 1.1rem;">📊 Observabilidade & Lineage</h4>
+                        <ul style="line-height: 2; margin-left: 1.2rem;">
+                            <li><strong>OpenLineage:</strong> Standard aberto de linhagem</li>
+                            <li><strong>Marquez:</strong> UI para navegação de lineage</li>
+                            <li><strong>Monte Carlo:</strong> Data observability SaaS</li>
+                            <li><strong>dbt docs:</strong> Documentação automática</li>
+                            <li><strong>Neo4j:</strong> Graph database para lineage</li>
+                        </ul>
+                    </div>
+
+                    <div
+                        style="background: rgba(255,255,255,0.1); padding: 1.5rem; border-radius: 12px; backdrop-filter: blur(10px);">
+                        <h4 style="margin-bottom: 1rem; font-size: 1.1rem;">📚 Catálogo & Discovery</h4>
+                        <ul style="line-height: 2; margin-left: 1.2rem;">
+                            <li><strong>DataHub:</strong> Catálogo federado (LinkedIn)</li>
+                            <li><strong>Amundsen:</strong> Data discovery (Lyft)</li>
+                            <li><strong>ElasticSearch:</strong> Search engine</li>
+                            <li><strong>Atlas:</strong> Metadata framework (Apache)</li>
+                            <li><strong>Collibra:</strong> Enterprise data catalog</li>
+                        </ul>
+                    </div>
+
+                    <div
+                        style="background: rgba(255,255,255,0.1); padding: 1.5rem; border-radius: 12px; backdrop-filter: blur(10px);">
+                        <h4 style="margin-bottom: 1rem; font-size: 1.1rem;">🔐 Segurança & Access Control</h4>
+                        <ul style="line-height: 2; margin-left: 1.2rem;">
+                            <li><strong>Unity Catalog:</strong> Unified governance (Databricks)</li>
+                            <li><strong>Ranger:</strong> Fine-grained access (Apache)</li>
+                            <li><strong>AWS Lake Formation:</strong> Centralized permissions</li>
+                            <li><strong>Delta Sharing:</strong> Secure data sharing</li>
+                            <li><strong>Privacera:</strong> Data privacy platform</li>
+                        </ul>
+                    </div>
+
+                    <div
+                        style="background: rgba(255,255,255,0.1); padding: 1.5rem; border-radius: 12px; backdrop-filter: blur(10px);">
+                        <h4 style="margin-bottom: 1rem; font-size: 1.1rem;">✅ Quality & Contracts</h4>
+                        <ul style="line-height: 2; margin-left: 1.2rem;">
+                            <li><strong>Great Expectations:</strong> Data quality framework</li>
+                            <li><strong>dbt tests:</strong> Built-in testing (dbt)</li>
+                            <li><strong>Soda SQL:</strong> Data quality checks</li>
+                            <li><strong>Data Contract CLI:</strong> Contract validation</li>
+                            <li><strong>dbt contracts:</strong> Native contracts (v1.5+)</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div
+                    style="background: rgba(0,0,0,0.2); padding: 2rem; border-radius: 12px; margin-top: 2rem; border-left: 4px solid #ffd700;">
+                    <p style="font-size: 1.1rem; line-height: 1.8; font-style: italic;">
+                        <strong>🎯 Resultado:</strong> Governança não é um documento PDF — é <strong>código
+                            executável</strong>
+                        que valida, audita e protege dados em tempo real. Cada transformação é rastreável, cada acesso é
+                        logado, cada contrato é validado. <strong>Compliance by design</strong>, não compliance by
+                        documentation.
+                    </p>
+                </div>
             </div>
         </div>
 
@@ -573,6 +999,8 @@
             </div>
         </div>
     </div>
+
+
 </body>
 
 </html>

@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Arquitetura Data Lakehouse - MinC</title>
+    <title>Silver Layer - Governança Ativa com Data Vault 2.1</title>
     <style>
         * {
             margin: 0;
@@ -159,9 +159,14 @@
     <nav class="navbar">
         <div class="nav-container">
             <div class="logo">
-                🏛️ MinC Data Lakehouse
+                🏛️ MinC
             </div>
             <ul class="nav-menu">
+                <li class="nav-item">
+                    <a href="#inicio" class="nav-link">
+                        🏠 Início
+                    </a>
+                </li>
                 <li class="nav-item">
                     <a href="#raw" class="nav-link">
                         <span class="layer-badge badge-raw">RAW</span>
@@ -175,13 +180,13 @@
                     </a>
                 </li>
                 <li class="nav-item">
-                    <a href="#silver" class="nav-link active">
+                    <a href="#silver" class="nav-link">
                         <span class="layer-badge badge-silver">SILVER</span>
                         Camada Silver
                     </a>
                 </li>
                 <li class="nav-item">
-                    <a href="#gold" class="nav-link">
+                    <a href="#gold" class="nav-link active">
                         <span class="layer-badge badge-gold">GOLD</span>
                         Camada Gold
                     </a>
@@ -189,7 +194,6 @@
             </ul>
         </div>
     </nav>
-
     <div class="container">
         <div class="content-card">
             <div class="breadcrumb">
@@ -218,7 +222,7 @@
 
                     <text x="700" y="35" font-family="Arial, sans-serif" font-size="24" font-weight="bold"
                         text-anchor="middle" fill="#2C3E50">
-                        Data Vault 2.1 - Ministério da Cultura
+                        Silver Layer - Governança Ativa com Data Vault 2.1
                     </text>
                     <text x="700" y="60" font-family="Arial, sans-serif" font-size="14" text-anchor="middle"
                         fill="#7F8C8D">
@@ -469,8 +473,525 @@
                         Garante conformidade"</text>
                 </svg>
             </div>
+
+            <!-- Seção RAG -->
+            <div
+                style="margin-top: 3rem; background: white; padding: 2rem; border-radius: 16px; box-shadow: 0 4px 12px rgba(0,0,0,0.1);">
+                <h2 style="color: #2c3e50; margin-bottom: 1.5rem; display: flex; align-items: center; gap: 0.5rem;">
+                    <span style="font-size: 2rem;">🤖</span>
+                    RAG - Retrieval-Augmented Generation
+                </h2>
+
+                <div
+                    style="background: linear-gradient(135deg, #667eea10 0%, #764ba210 100%); padding: 1.5rem; border-radius: 12px; border-left: 4px solid #667eea; margin-bottom: 1.5rem;">
+                    <h3 style="color: #667eea; margin-bottom: 1rem; font-size: 1.3rem;">💡 Como a Camada Silver
+                        potencializa RAG</h3>
+                    <p style="color: #4a5568; line-height: 1.8; margin-bottom: 1rem;">
+                        A arquitetura Data Vault 2.1 da camada Silver é ideal para sistemas RAG (Retrieval-Augmented
+                        Generation),
+                        fornecendo dados estruturados, históricos e contextualizados para modelos de IA generativa.
+                    </p>
+                </div>
+
+                <div
+                    style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1.5rem; margin-top: 2rem;">
+                    <div
+                        style="background: #f8f9fa; padding: 1.5rem; border-radius: 12px; border-top: 4px solid #3498DB;">
+                        <h4
+                            style="color: #3498DB; margin-bottom: 0.8rem; display: flex; align-items: center; gap: 0.5rem;">
+                            <span>🔍</span> Contexto Histórico Completo
+                        </h4>
+                        <p style="color: #4a5568; line-height: 1.6; font-size: 0.95rem;">
+                            <strong>Satellites</strong> mantêm todo o histórico de mudanças. Um LLM pode consultar
+                            "Qual era o endereço do artista em 2022?" e obter a resposta exata com timestamp.
+                        </p>
+                    </div>
+
+                    <div
+                        style="background: #f8f9fa; padding: 1.5rem; border-radius: 12px; border-top: 4px solid #27AE60;">
+                        <h4
+                            style="color: #27AE60; margin-bottom: 0.8rem; display: flex; align-items: center; gap: 0.5rem;">
+                            <span>🔗</span> Relacionamentos Semânticos
+                        </h4>
+                        <p style="color: #4a5568; line-height: 1.6; font-size: 0.95rem;">
+                            <strong>Links</strong> capturam relacionamentos M:N entre entidades. Perfeito para RAG
+                            responder
+                            "Quais artistas participaram de múltiplos editais?" com contexto completo.
+                        </p>
+                    </div>
+
+                    <div
+                        style="background: #f8f9fa; padding: 1.5rem; border-radius: 12px; border-top: 4px solid #E74C3C;">
+                        <h4
+                            style="color: #E74C3C; margin-bottom: 0.8rem; display: flex; align-items: center; gap: 0.5rem;">
+                            <span>🎯</span> Identidades Únicas
+                        </h4>
+                        <p style="color: #4a5568; line-height: 1.6; font-size: 0.95rem;">
+                            <strong>Hubs</strong> unificam identidades de múltiplas fontes. Um CPF pode vir do Salic,
+                            Mapas Culturais e outros sistemas - o RAG acessa uma visão unificada.
+                        </p>
+                    </div>
+
+                    <div
+                        style="background: #f8f9fa; padding: 1.5rem; border-radius: 12px; border-top: 4px solid #9B59B6;">
+                        <h4
+                            style="color: #9B59B6; margin-bottom: 0.8rem; display: flex; align-items: center; gap: 0.5rem;">
+                            <span>⚡</span> Performance para Embeddings
+                        </h4>
+                        <p style="color: #4a5568; line-height: 1.6; font-size: 0.95rem;">
+                            <strong>Hash Keys (MD5/SHA-1)</strong> otimizam buscas vetoriais. Ideal para gerar
+                            embeddings
+                            e fazer retrieval eficiente em bases com milhões de registros.
+                        </p>
+                    </div>
+
+                    <div
+                        style="background: #f8f9fa; padding: 1.5rem; border-radius: 12px; border-top: 4px solid #F39C12;">
+                        <h4
+                            style="color: #F39C12; margin-bottom: 0.8rem; display: flex; align-items: center; gap: 0.5rem;">
+                            <span>📊</span> Rastreabilidade para IA
+                        </h4>
+                        <p style="color: #4a5568; line-height: 1.6; font-size: 0.95rem;">
+                            <strong>Record Source</strong> permite que o RAG cite a fonte exata de cada informação:
+                            "Segundo o sistema Salic em 15/03/2024, o projeto teve orçamento de R$ 500k".
+                        </p>
+                    </div>
+
+                    <div
+                        style="background: #f8f9fa; padding: 1.5rem; border-radius: 12px; border-top: 4px solid #16A085;">
+                        <h4
+                            style="color: #16A085; margin-bottom: 0.8rem; display: flex; align-items: center; gap: 0.5rem;">
+                            <span>🔄</span> Dados Sempre Atualizados
+                        </h4>
+                        <p style="color: #4a5568; line-height: 1.6; font-size: 0.95rem;">
+                            <strong>Incremental Loads (dbt)</strong> mantêm embeddings atualizados. Novos dados são
+                            processados e disponibilizados para RAG em near real-time.
+                        </p>
+                    </div>
+                </div>
+
+                <div
+                    style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 2rem; border-radius: 12px; margin-top: 2rem; color: white;">
+                    <h3 style="margin-bottom: 1rem; font-size: 1.3rem;">🚀 Casos de Uso RAG com Silver Layer</h3>
+                    <div style="display: grid; gap: 1rem; margin-top: 1.5rem;">
+                        <div style="display: flex; gap: 1rem; align-items: start;">
+                            <span style="font-size: 1.5rem;">💬</span>
+                            <div>
+                                <strong>Chatbot Inteligente MinC:</strong> "Mostre todos os editais que o artista João
+                                Silva participou nos últimos 3 anos"
+                            </div>
+                        </div>
+                        <div style="display: flex; gap: 1rem; align-items: start;">
+                            <span style="font-size: 1.5rem;">📝</span>
+                            <div>
+                                <strong>Geração de Relatórios:</strong> "Crie um relatório sobre o impacto dos editais
+                                de teatro em São Paulo entre 2020-2023"
+                            </div>
+                        </div>
+                        <div style="display: flex; gap: 1rem; align-items: start;">
+                            <span style="font-size: 1.5rem;">🔍</span>
+                            <div>
+                                <strong>Análise Preditiva:</strong> "Quais artistas têm perfil para se candidatar ao
+                                próximo edital de dança?"
+                            </div>
+                        </div>
+                        <div style="display: flex; gap: 1rem; align-items: start;">
+                            <span style="font-size: 1.5rem;">📊</span>
+                            <div>
+                                <strong>Auditoria Assistida:</strong> "Identifique inconsistências nas prestações de
+                                contas de projetos culturais"
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div
+                    style="background: #fff3cd; border: 2px solid #ffc107; padding: 1.5rem; border-radius: 12px; margin-top: 2rem;">
+                    <h4 style="color: #856404; margin-bottom: 0.8rem; display: flex; align-items: center; gap: 0.5rem;">
+                        <span>⚙️</span> Stack Técnico RAG + Silver Layer
+                    </h4>
+                    <ul style="color: #856404; line-height: 2; margin-left: 1.5rem;">
+                        <li><strong>Vector Database:</strong> Pinecone, Weaviate ou Qdrant para embeddings</li>
+                        <li><strong>LLM:</strong> Claude, GPT-4, Llama 2 para geração de respostas</li>
+                        <li><strong>Embedding Model:</strong> text-embedding-ada-002, all-MiniLM-L6-v2</li>
+                        <li><strong>Orchestration:</strong> LangChain ou LlamaIndex para pipeline RAG</li>
+                        <li><strong>Source:</strong> Data Vault 2.1 Silver Layer (Delta Lake + Spark)</li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Seção Governança & Segurança Ativa -->
+            <div
+                style="margin-top: 3rem; background: white; padding: 2rem; border-radius: 16px; box-shadow: 0 4px 12px rgba(0,0,0,0.1);">
+                <h2 style="color: #2c3e50; margin-bottom: 1.5rem; display: flex; align-items: center; gap: 0.5rem;">
+                    <span style="font-size: 2rem;">🛡️</span>
+                    Governança & Segurança Ativa
+                </h2>
+
+                <div
+                    style="background: linear-gradient(135deg, #e74c3c10 0%, #c0392b10 100%); padding: 1.5rem; border-radius: 12px; border-left: 4px solid #e74c3c; margin-bottom: 2rem;">
+                    <h3 style="color: #e74c3c; margin-bottom: 1rem; font-size: 1.3rem;">🔐 Arquitetura Soberana de Dados
+                    </h3>
+                    <p style="color: #4a5568; line-height: 1.8;">
+                        A camada Silver implementa governança <strong>ativa</strong> (não apenas documentação).
+                        Políticas de acesso, mascaramento dinâmico, linhagem automática e SLAs são <strong>enforcement
+                            técnico</strong>,
+                        não apenas guidelines. Compliance by design para LGPD e auditoria TCU.
+                    </p>
+                </div>
+
+                <!-- Linhagem & Observabilidade -->
+                <div
+                    style="background: #f8f9fa; padding: 2rem; border-radius: 12px; margin-bottom: 2rem; border: 2px solid #3498DB;">
+                    <h3 style="color: #3498DB; margin-bottom: 1.5rem; display: flex; align-items: center; gap: 0.5rem;">
+                        <span style="font-size: 1.5rem;">📊</span>
+                        Linhagem Automática & Catálogo de Dados
+                    </h3>
+
+                    <div
+                        style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.5rem;">
+                        <div
+                            style="background: white; padding: 1.5rem; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.05);">
+                            <h4
+                                style="color: #3498DB; margin-bottom: 0.8rem; display: flex; align-items: center; gap: 0.5rem;">
+                                <span>🔗</span> OpenLineage Integration
+                            </h4>
+                            <p style="color: #4a5568; line-height: 1.6; font-size: 0.95rem; margin-bottom: 1rem;">
+                                Cada transformação dbt emite eventos OpenLineage. Rastreamento automático de:
+                            </p>
+                            <ul style="color: #4a5568; line-height: 1.8; margin-left: 1.2rem; font-size: 0.9rem;">
+                                <li><code>sat_artista_v1.sql</code> → quais colunas vieram de qual fonte</li>
+                                <li>Timestamp exato de cada load</li>
+                                <li>Dependências upstream/downstream</li>
+                                <li>Job execution metadata (Spark job ID, executor)</li>
+                            </ul>
+                            <div
+                                style="background: #ecf0f1; padding: 0.8rem; border-radius: 6px; margin-top: 1rem; font-family: monospace; font-size: 0.85rem;">
+                                <strong>Tool:</strong> OpenLineage + Marquez UI<br>
+                                <strong>Format:</strong> JSON events via HTTP/Kafka
+                            </div>
+                        </div>
+
+                        <div
+                            style="background: white; padding: 1.5rem; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.05);">
+                            <h4
+                                style="color: #27AE60; margin-bottom: 0.8rem; display: flex; align-items: center; gap: 0.5rem;">
+                                <span>📚</span> DataHub / Amundsen
+                            </h4>
+                            <p style="color: #4a5568; line-height: 1.6; font-size: 0.95rem; margin-bottom: 1rem;">
+                                Catálogo federado com busca semântica. Cada Hub/Link/Satellite é um dataset catalogado:
+                            </p>
+                            <ul style="color: #4a5568; line-height: 1.8; margin-left: 1.2rem; font-size: 0.9rem;">
+                                <li><strong>Business Glossary:</strong> "CPF" → "Cadastro de Pessoa Física"</li>
+                                <li><strong>Ownership:</strong> Time de Cultura assinala responsabilidade</li>
+                                <li><strong>Tags:</strong> #PII, #LGPD, #TCU-Auditável</li>
+                                <li><strong>Column-level lineage:</strong> CPF em SAT_ARTISTA vem de raw.salic.cpf</li>
+                            </ul>
+                            <div
+                                style="background: #ecf0f1; padding: 0.8rem; border-radius: 6px; margin-top: 1rem; font-family: monospace; font-size: 0.85rem;">
+                                <strong>Tool:</strong> DataHub (LinkedIn) ou Amundsen (Lyft)<br>
+                                <strong>Search:</strong> ElasticSearch para discovery
+                            </div>
+                        </div>
+
+                        <div
+                            style="background: white; padding: 1.5rem; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.05);">
+                            <h4
+                                style="color: #9B59B6; margin-bottom: 0.8rem; display: flex; align-items: center; gap: 0.5rem;">
+                                <span>⏱️</span> SLA Tracking por Dataset
+                            </h4>
+                            <p style="color: #4a5568; line-height: 1.6; font-size: 0.95rem; margin-bottom: 1rem;">
+                                Cada Hub/Link/Sat tem SLA declarado e monitorado:
+                            </p>
+                            <ul style="color: #4a5568; line-height: 1.8; margin-left: 1.2rem; font-size: 0.9rem;">
+                                <li><strong>HUB_ARTISTA:</strong> Freshness < 1h (crítico)</li>
+                                <li><strong>LINK_INSCRICAO:</strong> Freshness < 4h (importante)</li>
+                                <li><strong>SAT_PROJETO:</strong> Freshness < 24h (normal)</li>
+                                <li>Alertas Slack/PagerDuty se SLA violado</li>
+                            </ul>
+                            <div
+                                style="background: #ecf0f1; padding: 0.8rem; border-radius: 6px; margin-top: 1rem; font-family: monospace; font-size: 0.85rem;">
+                                <strong>Tool:</strong> Monte Carlo, dbt Cloud, Great Expectations<br>
+                                <strong>Metrics:</strong> Freshness, completeness, schema drift
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Segurança & ABAC/RBAC -->
+                <div
+                    style="background: #fff5f5; padding: 2rem; border-radius: 12px; margin-bottom: 2rem; border: 2px solid #e74c3c;">
+                    <h3 style="color: #e74c3c; margin-bottom: 1.5rem; display: flex; align-items: center; gap: 0.5rem;">
+                        <span style="font-size: 1.5rem;">🔐</span>
+                        ABAC/RBAC + Mascaramento Dinâmico
+                    </h3>
+
+                    <div
+                        style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1.5rem; margin-bottom: 2rem;">
+                        <div
+                            style="background: white; padding: 1.5rem; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.05);">
+                            <h4 style="color: #e74c3c; margin-bottom: 0.8rem;">👥 RBAC - Role-Based Access Control</h4>
+                            <p style="color: #4a5568; line-height: 1.6; font-size: 0.95rem; margin-bottom: 1rem;">
+                                Políticas por papel (role) no Delta Lake:
+                            </p>
+                            <div
+                                style="background: #2c3e50; color: #ecf0f1; padding: 1rem; border-radius: 6px; font-family: monospace; font-size: 0.85rem; line-height: 1.6; overflow-x: auto;">
+                                <pre style="margin: 0;">-- Analista de Cultura (leitura geral)
+GRANT SELECT ON silver.hub_artista TO ROLE analista_cultura;
+
+-- Auditor TCU (leitura + histórico completo)
+GRANT SELECT, TIME TRAVEL ON silver.* TO ROLE auditor_tcu;
+
+-- Data Engineer (full access)
+GRANT ALL PRIVILEGES ON silver.* TO ROLE data_engineer;</pre>
+                            </div>
+                        </div>
+
+                        <div
+                            style="background: white; padding: 1.5rem; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.05);">
+                            <h4 style="color: #c0392b; margin-bottom: 0.8rem;">🎯 ABAC - Attribute-Based Access Control
+                            </h4>
+                            <p style="color: #4a5568; line-height: 1.6; font-size: 0.95rem; margin-bottom: 1rem;">
+                                Acesso por atributos contextuais (domínio, região, projeto):
+                            </p>
+                            <div
+                                style="background: #2c3e50; color: #ecf0f1; padding: 1rem; border-radius: 6px; font-family: monospace; font-size: 0.85rem; line-height: 1.6; overflow-x: auto;">
+                                <pre style="margin: 0;">-- Policy: usuário só vê dados do seu domínio
+CREATE ROW ACCESS POLICY pol_dominio_cultura
+ON silver.sat_projeto
+FILTER (user_domain = projeto_dominio);
+
+-- Policy: região geográfica
+CREATE ROW ACCESS POLICY pol_regiao_nordeste
+ON silver.hub_artista
+FILTER (user_region IN ('BA','PE','CE') 
+        OR user_role = 'admin');</pre>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div
+                        style="background: linear-gradient(135deg, #ffeaa7 0%, #fdcb6e 100%); padding: 1.5rem; border-radius: 12px; border-left: 4px solid #f39c12;">
+                        <h4
+                            style="color: #856404; margin-bottom: 1rem; display: flex; align-items: center; gap: 0.5rem;">
+                            <span>🎭</span> Mascaramento Dinâmico de PII (Column-Level Security)
+                        </h4>
+                        <p style="color: #856404; line-height: 1.6; margin-bottom: 1rem;">
+                            Dados sensíveis (CPF, email, telefone) são mascarados <strong>em tempo de query</strong>
+                            baseado no role:
+                        </p>
+                        <div style="background: white; padding: 1rem; border-radius: 8px; margin-top: 1rem;">
+                            <table style="width: 100%; border-collapse: collapse; font-size: 0.9rem;">
+                                <thead style="background: #f39c12; color: white;">
+                                    <tr>
+                                        <th style="padding: 0.8rem; text-align: left; border: 1px solid #ddd;">Role</th>
+                                        <th style="padding: 0.8rem; text-align: left; border: 1px solid #ddd;">CPF
+                                            Visível</th>
+                                        <th style="padding: 0.8rem; text-align: left; border: 1px solid #ddd;">Email
+                                            Visível</th>
+                                        <th style="padding: 0.8rem; text-align: left; border: 1px solid #ddd;">Telefone
+                                        </th>
+                                    </tr>
+                                </thead>
+                                <tbody style="color: #2c3e50;">
+                                    <tr style="background: #f8f9fa;">
+                                        <td style="padding: 0.8rem; border: 1px solid #ddd;">
+                                            <strong>analista_cultura</strong>
+                                        </td>
+                                        <td style="padding: 0.8rem; border: 1px solid #ddd;"><code>***.***.123-45</code>
+                                        </td>
+                                        <td style="padding: 0.8rem; border: 1px solid #ddd;"><code>j***@gmail.com</code>
+                                        </td>
+                                        <td style="padding: 0.8rem; border: 1px solid #ddd;"><code>(11) ****-5678</code>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td style="padding: 0.8rem; border: 1px solid #ddd;">
+                                            <strong>auditor_tcu</strong>
+                                        </td>
+                                        <td style="padding: 0.8rem; border: 1px solid #ddd;"><code>123.456.789-10</code>
+                                            ✅</td>
+                                        <td style="padding: 0.8rem; border: 1px solid #ddd;">
+                                            <code><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="dab0b5bbb59abdb7bbb3b6f4b9b5b7">[email&#160;protected]</a></code>
+                                            ✅
+                                        </td>
+                                        <td style="padding: 0.8rem; border: 1px solid #ddd;">
+                                            <code>(11) 98765-4321</code> ✅
+                                        </td>
+                                    </tr>
+                                    <tr style="background: #f8f9fa;">
+                                        <td style="padding: 0.8rem; border: 1px solid #ddd;">
+                                            <strong>bi_dashboard</strong>
+                                        </td>
+                                        <td style="padding: 0.8rem; border: 1px solid #ddd;"><code>***.***.***-**</code>
+                                        </td>
+                                        <td style="padding: 0.8rem; border: 1px solid #ddd;"><code>NULL</code></td>
+                                        <td style="padding: 0.8rem; border: 1px solid #ddd;"><code>NULL</code></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        <div
+                            style="background: #2c3e50; color: #ecf0f1; padding: 1rem; border-radius: 6px; font-family: monospace; font-size: 0.85rem; margin-top: 1rem; line-height: 1.6; overflow-x: auto;">
+                            <pre style="margin: 0;">-- Implementação com Delta Lake Dynamic Views
+CREATE VIEW silver.sat_artista_masked AS
+SELECT 
+  id_artista_hash,
+  CASE 
+    WHEN is_member('auditor_tcu') THEN cpf_artista
+    WHEN is_member('analista_cultura') THEN mask_cpf(cpf_artista)
+    ELSE NULL
+  END AS cpf_artista,
+  nome_artista,
+  load_datetime
+FROM silver.sat_artista;</pre>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Data Contracts -->
+                <div
+                    style="background: #e8f5e9; padding: 2rem; border-radius: 12px; margin-bottom: 2rem; border: 2px solid #27AE60;">
+                    <h3 style="color: #27AE60; margin-bottom: 1.5rem; display: flex; align-items: center; gap: 0.5rem;">
+                        <span style="font-size: 1.5rem;">📜</span>
+                        Data Contracts entre Camadas
+                    </h3>
+
+                    <p style="color: #4a5568; line-height: 1.8; margin-bottom: 1.5rem;">
+                        Contrato explícito (YAML) define schema, SLA, ownership e quality expectations.
+                        Bronze → Silver é validado <strong>antes</strong> da transformação. Se contrato quebra, pipeline
+                        para.
+                    </p>
+
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;">
+                        <div>
+                            <h4 style="color: #27AE60; margin-bottom: 0.8rem;">📝 Exemplo: Contract Bronze → Silver</h4>
+                            <div
+                                style="background: #2c3e50; color: #ecf0f1; padding: 1rem; border-radius: 6px; font-family: monospace; font-size: 0.8rem; line-height: 1.5; overflow-x: auto;">
+                                <pre style="margin: 0;"># bronze_to_silver_artista.yaml
+dataset: bronze.artista_limpo
+version: v2.1
+owner: <a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="087c61656d256c696c677b256b7d647c7d7a69486561666b266f677e266a7a">[email&#160;protected]</a>
+
+schema:
+  - name: cpf_artista
+    type: STRING
+    constraints:
+      - not_null: true
+      - regex: '^\d{3}\.\d{3}\.\d{3}-\d{2}$'
+      - unique: true
+  - name: nome_artista
+    type: STRING
+    constraints:
+      - not_null: true
+      - min_length: 3
+  - name: load_datetime
+    type: TIMESTAMP
+    constraints:
+      - not_null: true
+
+sla:
+  freshness: 1h
+  completeness: 99.9%
+  
+quality_checks:
+  - no_duplicated_cpf
+  - valid_date_format
+  - referential_integrity_to_raw</pre>
+                            </div>
+                        </div>
+
+                        <div>
+                            <h4 style="color: #229954; margin-bottom: 0.8rem;">✅ Enforcement Automático</h4>
+                            <div
+                                style="background: white; padding: 1.2rem; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.05);">
+                                <ul style="color: #4a5568; line-height: 2; margin-left: 1.2rem;">
+                                    <li><strong>Pre-flight validation:</strong> dbt testa contrato antes do merge</li>
+                                    <li><strong>Schema drift detection:</strong> Se Bronze muda schema sem atualizar
+                                        contrato → FAIL</li>
+                                    <li><strong>SLA monitoring:</strong> Monte Carlo / dbt Cloud alertam se freshness >
+                                        1h</li>
+                                    <li><strong>Breaking changes:</strong> Requer aprovação explícita do owner</li>
+                                </ul>
+                            </div>
+                            <div
+                                style="background: #fff3cd; border: 1px solid #ffc107; padding: 1rem; border-radius: 8px; margin-top: 1rem;">
+                                <strong style="color: #856404;">💡 Benefício:</strong>
+                                <p style="color: #856404; margin-top: 0.5rem; font-size: 0.9rem; line-height: 1.6;">
+                                    Times downstream (Gold, BI) confiam que Silver <strong>sempre</strong> respeita
+                                    contrato.
+                                    Sem surpresas em produção.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Stack Técnico Governança -->
+                <div
+                    style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 2rem; border-radius: 12px; color: white;">
+                    <h3 style="margin-bottom: 1.5rem; display: flex; align-items: center; gap: 0.5rem;">
+                        <span style="font-size: 1.5rem;">🛠️</span>
+                        Stack Técnico - Governança Ativa
+                    </h3>
+                    <div
+                        style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1.5rem;">
+                        <div
+                            style="background: rgba(255,255,255,0.1); padding: 1.2rem; border-radius: 8px; backdrop-filter: blur(10px);">
+                            <h4 style="margin-bottom: 0.8rem;">📊 Observabilidade</h4>
+                            <ul style="line-height: 1.8; margin-left: 1.2rem; font-size: 0.95rem;">
+                                <li>OpenLineage (linhagem)</li>
+                                <li>Marquez (UI lineage)</li>
+                                <li>Monte Carlo (data observability)</li>
+                                <li>dbt Cloud (orchestration + tests)</li>
+                            </ul>
+                        </div>
+                        <div
+                            style="background: rgba(255,255,255,0.1); padding: 1.2rem; border-radius: 8px; backdrop-filter: blur(10px);">
+                            <h4 style="margin-bottom: 0.8rem;">📚 Catálogo</h4>
+                            <ul style="line-height: 1.8; margin-left: 1.2rem; font-size: 0.95rem;">
+                                <li>DataHub (LinkedIn)</li>
+                                <li>Amundsen (Lyft)</li>
+                                <li>ElasticSearch (search)</li>
+                                <li>Neo4j (graph lineage)</li>
+                            </ul>
+                        </div>
+                        <div
+                            style="background: rgba(255,255,255,0.1); padding: 1.2rem; border-radius: 8px; backdrop-filter: blur(10px);">
+                            <h4 style="margin-bottom: 0.8rem;">🔐 Segurança</h4>
+                            <ul style="line-height: 1.8; margin-left: 1.2rem; font-size: 0.95rem;">
+                                <li>Unity Catalog (Databricks)</li>
+                                <li>Ranger (Apache)</li>
+                                <li>AWS Lake Formation</li>
+                                <li>Delta Sharing (secure sharing)</li>
+                            </ul>
+                        </div>
+                        <div
+                            style="background: rgba(255,255,255,0.1); padding: 1.2rem; border-radius: 8px; backdrop-filter: blur(10px);">
+                            <h4 style="margin-bottom: 0.8rem;">✅ Quality & Contracts</h4>
+                            <ul style="line-height: 1.8; margin-left: 1.2rem; font-size: 0.95rem;">
+                                <li>Great Expectations</li>
+                                <li>dbt tests</li>
+                                <li>Soda SQL</li>
+                                <li>Data Contract CLI</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <div
+                        style="background: rgba(0,0,0,0.2); padding: 1.5rem; border-radius: 8px; margin-top: 2rem; border-left: 4px solid #ffd700;">
+                        <p style="font-style: italic; line-height: 1.8; font-size: 1.05rem;">
+                            <strong>🎯 Resultado:</strong> Arquitetura onde governança é <strong>código
+                                executável</strong>,
+                            não apenas documentação. Compliance by design, rastreabilidade total, segurança em camadas.
+                            Auditável pelo TCU, compatível com LGPD, pronto para IA soberana.
+                        </p>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
+    <script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script>
     <script>
         // Adiciona comportamento aos links do menu
         document.querySelectorAll('.nav-link').forEach(link => {
@@ -483,7 +1004,8 @@
                     'raw': 'raw.html',
                     'bronze': 'bronze.html',
                     'silver': 'datavault.html',
-                    'gold': 'gold.html'
+                    'gold': 'gold.html',
+                    'inicio': 'index.html'
                 };
 
                 // Navega para a página correspondente
