@@ -1,0 +1,564 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Arquitetura Data Lakehouse - MinC - Camada BRONZE</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+
+        .navbar {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            padding: 1rem 2rem;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+
+        .nav-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #667eea;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .nav-menu {
+            display: flex;
+            gap: 0.5rem;
+            list-style: none;
+        }
+
+        .nav-item {
+            position: relative;
+        }
+
+        .nav-link {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.75rem 1.5rem;
+            text-decoration: none;
+            color: #4a5568;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+            font-weight: 500;
+        }
+
+        .nav-link:hover {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+        }
+
+        .nav-link.active {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+        }
+
+        .layer-badge {
+            display: inline-block;
+            padding: 0.25rem 0.5rem;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            font-weight: bold;
+        }
+
+        .badge-raw {
+            background: #e53e3e;
+            color: white;
+        }
+
+        .badge-bronze {
+            background: #cd7f32;
+            color: white;
+        }
+
+        .badge-silver {
+            background: #c0c0c0;
+            color: #333;
+        }
+
+        .badge-gold {
+            background: #ffd700;
+            color: #333;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 2rem auto;
+            padding: 0 1rem;
+        }
+
+        .content-card {
+            background: white;
+            border-radius: 16px;
+            padding: 2rem;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+        }
+
+        .breadcrumb {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: 1.5rem;
+            color: #718096;
+            font-size: 0.9rem;
+        }
+
+        .diagram-container {
+            width: 100%;
+            overflow-x: auto;
+            margin-top: 1rem;
+        }
+
+        svg {
+            max-width: 100%;
+            height: auto;
+        }
+
+        @media (max-width: 768px) {
+            .nav-menu {
+                flex-direction: column;
+                width: 100%;
+            }
+
+            .nav-container {
+                flex-direction: column;
+                gap: 1rem;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="logo">
+                🏛️ MinC Data Lakehouse
+            </div>
+            <ul class="nav-menu">
+                <li class="nav-item">
+                    <a href="#raw" class="nav-link">
+                        <span class="layer-badge badge-raw">RAW</span>
+                        Camada Raw
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="#bronze" class="nav-link active">
+                        <span class="layer-badge badge-bronze">BRONZE</span>
+                        Camada Bronze
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="#silver" class="nav-link">
+                        <span class="layer-badge badge-silver">SILVER</span>
+                        Camada Silver
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="#gold" class="nav-link">
+                        <span class="layer-badge badge-gold">GOLD</span>
+                        Camada Gold
+                    </a>
+                </li>
+            </ul>
+        </div>
+    </nav>
+
+    <div class="container">
+        <div class="content-card">
+            <div class="breadcrumb">
+                🏠 Início → <span class="layer-badge badge-bronze">BRONZE</span> → Limpeza e Padronização
+            </div>
+
+            <div class="diagram-container">
+                <svg viewBox="0 0 1400 1200" xmlns="http://www.w3.org/2000/svg">
+                    <defs>
+                        <linearGradient id="bronzeGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+                            <stop offset="0%" style="stop-color:#CD7F32;stop-opacity:1" />
+                            <stop offset="100%" style="stop-color:#A0522D;stop-opacity:1" />
+                        </linearGradient>
+                        <linearGradient id="rawGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+                            <stop offset="0%" style="stop-color:#E53E3E;stop-opacity:1" />
+                            <stop offset="100%" style="stop-color:#C53030;stop-opacity:1" />
+                        </linearGradient>
+                        <linearGradient id="processGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+                            <stop offset="0%" style="stop-color:#3498DB;stop-opacity:1" />
+                            <stop offset="100%" style="stop-color:#2C3E50;stop-opacity:1" />
+                        </linearGradient>
+                        <filter id="shadow">
+                            <feDropShadow dx="2" dy="2" stdDeviation="3" flood-opacity="0.3" />
+                        </filter>
+                    </defs>
+
+                    <text x="700" y="35" font-family="Arial, sans-serif" font-size="24" font-weight="bold"
+                        text-anchor="middle" fill="#2C3E50">
+                        Camada BRONZE - Limpeza e Padronização de Dados
+                    </text>
+                    <text x="700" y="60" font-family="Arial, sans-serif" font-size="14" text-anchor="middle"
+                        fill="#7F8C8D">
+                        Primeira transformação • Validação de Schema • Qualidade de Dados
+                    </text>
+
+                    <!-- Dados RAW (entrada) -->
+                    <g filter="url(#shadow)">
+                        <rect x="100" y="100" width="300" height="150" rx="10" fill="url(#rawGrad)" stroke="#C53030"
+                            stroke-width="3" />
+                        <text x="250" y="130" font-family="Arial, sans-serif" font-size="16" font-weight="bold"
+                            text-anchor="middle" fill="white">📥 RAW Layer</text>
+                        <text x="120" y="160" font-family="monospace" font-size="10" fill="white">• Dados brutos sem
+                            transformação</text>
+                        <text x="120" y="180" font-family="monospace" font-size="10" fill="white">• Schemas
+                            inconsistentes</text>
+                        <text x="120" y="200" font-family="monospace" font-size="10" fill="white">• Tipos de dados
+                            variados</text>
+                        <text x="120" y="220" font-family="monospace" font-size="10" fill="white">• Duplicatas
+                            possíveis</text>
+                        <text x="250" y="240" font-family="Arial, sans-serif" font-size="9" text-anchor="middle"
+                            fill="#FFE0E0">Entrada: Múltiplas fontes</text>
+                    </g>
+
+                    <!-- Processo de Transformação -->
+                    <defs>
+                        <marker id="arrowBlue" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto"
+                            markerUnits="strokeWidth">
+                            <path d="M0,0 L0,6 L9,3 z" fill="#3498DB" />
+                        </marker>
+                    </defs>
+                    <path d="M 400 175 L 530 175" stroke="#3498DB" stroke-width="3" fill="none"
+                        marker-end="url(#arrowBlue)" />
+                    <text x="465" y="170" font-family="Arial, sans-serif" font-size="11" fill="#3498DB"
+                        font-weight="bold">dbt + Spark</text>
+
+                    <g filter="url(#shadow)">
+                        <rect x="530" y="90" width="350" height="400" rx="10" fill="url(#processGrad)" stroke="#2C3E50"
+                            stroke-width="3" />
+                        <text x="705" y="120" font-family="Arial, sans-serif" font-size="18" font-weight="bold"
+                            text-anchor="middle" fill="white">⚙️ Pipeline BRONZE</text>
+
+                        <!-- Step 1 -->
+                        <rect x="550" y="140" width="310" height="60" rx="5" fill="#2980B9" />
+                        <text x="705" y="160" font-family="Arial, sans-serif" font-size="12" font-weight="bold"
+                            text-anchor="middle" fill="white">1️⃣ Schema Enforcement</text>
+                        <text x="560" y="180" font-family="monospace" font-size="9" fill="#ECF0F1">
+                            • Definir tipos de dados (INT, STRING, DATE)
+                        </text>
+                        <text x="560" y="193" font-family="monospace" font-size="9" fill="#ECF0F1">
+                            • Rejeitar linhas com schema inválido
+                        </text>
+
+                        <!-- Step 2 -->
+                        <rect x="550" y="210" width="310" height="60" rx="5" fill="#2980B9" />
+                        <text x="705" y="230" font-family="Arial, sans-serif" font-size="12" font-weight="bold"
+                            text-anchor="middle" fill="white">2️⃣ Padronização</text>
+                        <text x="560" y="250" font-family="monospace" font-size="9" fill="#ECF0F1">
+                            • CPF: 12345678900 (sem pontos/traços)
+                        </text>
+                        <text x="560" y="263" font-family="monospace" font-size="9" fill="#ECF0F1">
+                            • Datas: ISO 8601 (YYYY-MM-DD)
+                        </text>
+
+                        <!-- Step 3 -->
+                        <rect x="550" y="280" width="310" height="60" rx="5" fill="#2980B9" />
+                        <text x="705" y="300" font-family="Arial, sans-serif" font-size="12" font-weight="bold"
+                            text-anchor="middle" fill="white">3️⃣ Deduplicação</text>
+                        <text x="560" y="320" font-family="monospace" font-size="9" fill="#ECF0F1">
+                            • Remove duplicatas por Business Key
+                        </text>
+                        <text x="560" y="333" font-family="monospace" font-size="9" fill="#ECF0F1">
+                            • Mantém registro mais recente (timestamp)
+                        </text>
+
+                        <!-- Step 4 -->
+                        <rect x="550" y="350" width="310" height="60" rx="5" fill="#2980B9" />
+                        <text x="705" y="370" font-family="Arial, sans-serif" font-size="12" font-weight="bold"
+                            text-anchor="middle" fill="white">4️⃣ Validação de Qualidade</text>
+                        <text x="560" y="390" font-family="monospace" font-size="9" fill="#ECF0F1">
+                            • Checks de nulidade em campos obrigatórios
+                        </text>
+                        <text x="560" y="403" font-family="monospace" font-size="9" fill="#ECF0F1">
+                            • Validação de CPF/CNPJ via regex
+                        </text>
+
+                        <!-- Step 5 -->
+                        <rect x="550" y="420" width="310" height="60" rx="5" fill="#2980B9" />
+                        <text x="705" y="440" font-family="Arial, sans-serif" font-size="12" font-weight="bold"
+                            text-anchor="middle" fill="white">5️⃣ Enriquecimento Mínimo</text>
+                        <text x="560" y="460" font-family="monospace" font-size="9" fill="#ECF0F1">
+                            • Adiciona metadata: load_timestamp
+                        </text>
+                        <text x="560" y="473" font-family="monospace" font-size="9" fill="#ECF0F1">
+                            • Adiciona source_system (Salic, Mapas)
+                        </text>
+                    </g>
+
+                    <!-- Camada BRONZE (saída) -->
+                    <defs>
+                        <marker id="arrowBronze" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto"
+                            markerUnits="strokeWidth">
+                            <path d="M0,0 L0,6 L9,3 z" fill="#CD7F32" />
+                        </marker>
+                    </defs>
+                    <path d="M 880 290 L 1000 290" stroke="#CD7F32" stroke-width="3" fill="none"
+                        marker-end="url(#arrowBronze)" />
+                    <text x="940" y="285" font-family="Arial, sans-serif" font-size="11" fill="#CD7F32"
+                        font-weight="bold">Validated</text>
+
+                    <g filter="url(#shadow)">
+                        <rect x="1000" y="100" width="300" height="390" rx="10" fill="url(#bronzeGrad)" stroke="#A0522D"
+                            stroke-width="3" />
+                        <text x="1150" y="130" font-family="Arial, sans-serif" font-size="16" font-weight="bold"
+                            text-anchor="middle" fill="white">✅ BRONZE Layer</text>
+
+                        <text x="1020" y="160" font-family="monospace" font-size="10" fill="white">📊
+                            bronze.artistas</text>
+                        <text x="1030" y="180" font-family="monospace" font-size="9" fill="#FFE0B3">├─ cpf: STRING
+                            (limpo)</text>
+                        <text x="1030" y="195" font-family="monospace" font-size="9" fill="#FFE0B3">├─ nome:
+                            STRING</text>
+                        <text x="1030" y="210" font-family="monospace" font-size="9" fill="#FFE0B3">└─ data_cadastro:
+                            DATE</text>
+
+                        <text x="1020" y="235" font-family="monospace" font-size="10" fill="white">📊
+                            bronze.editais</text>
+                        <text x="1030" y="255" font-family="monospace" font-size="9" fill="#FFE0B3">├─ codigo:
+                            STRING</text>
+                        <text x="1030" y="270" font-family="monospace" font-size="9" fill="#FFE0B3">├─ valor:
+                            DECIMAL(15,2)</text>
+                        <text x="1030" y="285" font-family="monospace" font-size="9" fill="#FFE0B3">└─ data_abertura:
+                            DATE</text>
+
+                        <text x="1020" y="310" font-family="monospace" font-size="10" fill="white">📊
+                            bronze.inscricoes</text>
+                        <text x="1030" y="330" font-family="monospace" font-size="9" fill="#FFE0B3">├─ id_inscricao:
+                            STRING</text>
+                        <text x="1030" y="345" font-family="monospace" font-size="9" fill="#FFE0B3">├─ cpf_artista:
+                            STRING</text>
+                        <text x="1030" y="360" font-family="monospace" font-size="9" fill="#FFE0B3">└─ codigo_edital:
+                            STRING</text>
+
+                        <rect x="1010" y="380" width="280" height="100" rx="5" fill="#A0522D" opacity="0.8" />
+                        <text x="1150" y="405" font-family="Arial, sans-serif" font-size="11" text-anchor="middle"
+                            fill="white" font-weight="bold">🎯 Características</text>
+                        <text x="1150" y="425" font-family="Arial, sans-serif" font-size="9" text-anchor="middle"
+                            fill="#FFE0B3">Schema validado e consistente</text>
+                        <text x="1150" y="440" font-family="Arial, sans-serif" font-size="9" text-anchor="middle"
+                            fill="#FFE0B3">Dados limpos e padronizados</text>
+                        <text x="1150" y="455" font-family="Arial, sans-serif" font-size="9" text-anchor="middle"
+                            fill="#FFE0B3">Sem duplicatas</text>
+                        <text x="1150" y="470" font-family="Arial, sans-serif" font-size="9" text-anchor="middle"
+                            fill="#FFE0B3">Pronto para modelagem Silver</text>
+                    </g>
+
+                    <!-- Exemplo de Transformação -->
+                    <rect x="100" y="320" width="400" height="160" rx="10" fill="#ECF0F1" stroke="#95A5A6"
+                        stroke-width="2" />
+                    <text x="300" y="345" font-family="Arial, sans-serif" font-size="14" font-weight="bold"
+                        text-anchor="middle" fill="#2C3E50">📝 Exemplo: Transformação CPF</text>
+
+                    <text x="120" y="370" font-family="monospace" font-size="11" fill="#E74C3C" font-weight="bold">
+                        ❌ RAW (inconsistente):
+                    </text>
+                    <text x="120" y="390" font-family="monospace" font-size="10" fill="#7F8C8D">
+                        • "123.456.789-00"
+                    </text>
+                    <text x="120" y="405" font-family="monospace" font-size="10" fill="#7F8C8D">
+                        • "12345678900"
+                    </text>
+                    <text x="120" y="420" font-family="monospace" font-size="10" fill="#7F8C8D">
+                        • "123 456 789 00"
+                    </text>
+
+                    <text x="320" y="370" font-family="monospace" font-size="11" fill="#27AE60" font-weight="bold">
+                        ✅ BRONZE (padronizado):
+                    </text>
+                    <text x="320" y="390" font-family="monospace" font-size="10" fill="#7F8C8D">
+                        • "12345678900" (11 dígitos)
+                    </text>
+                    <text x="320" y="405" font-family="monospace" font-size="10" fill="#7F8C8D">
+                        • Validação: regex ^[0-9]{11}$
+                    </text>
+                    <text x="320" y="420" font-family="monospace" font-size="10" fill="#7F8C8D">
+                        • Rejeita: CPF inválido
+                    </text>
+
+                    <text x="300" y="450" font-family="Arial, sans-serif" font-size="9" text-anchor="middle"
+                        fill="#34495E" font-style="italic">
+                        Spark SQL: regexp_replace(cpf, '[^0-9]', '')
+                    </text>
+                    <text x="300" y="465" font-family="Arial, sans-serif" font-size="9" text-anchor="middle"
+                        fill="#34495E" font-style="italic">
+                        dbt test: length(cpf) = 11
+                    </text>
+
+                    <!-- Métricas de Qualidade -->
+                    <rect x="50" y="550" width="1300" height="300" rx="10" fill="#ECF0F1" stroke="#95A5A6"
+                        stroke-width="2" />
+                    <text x="700" y="585" font-family="Arial, sans-serif" font-size="18" font-weight="bold"
+                        text-anchor="middle" fill="#2C3E50">📊 Métricas de Qualidade - Camada BRONZE</text>
+
+                    <circle cx="120" cy="640" r="30" fill="#CD7F32" />
+                    <text x="120" y="650" font-family="Arial, sans-serif" font-size="24" text-anchor="middle"
+                        fill="white" font-weight="bold">1</text>
+                    <text x="170" y="630" font-family="Arial, sans-serif" font-size="13" font-weight="bold"
+                        fill="#2C3E50">Taxa de Validação</text>
+                    <text x="170" y="650" font-family="Arial, sans-serif" font-size="11" fill="#7F8C8D">
+                        98.5% dos registros aprovados
+                    </text>
+                    <text x="170" y="665" font-family="Arial, sans-serif" font-size="11" fill="#7F8C8D">
+                        1.5% rejeitados (quarentena)
+                    </text>
+
+                    <circle cx="480" cy="640" r="30" fill="#3498DB" />
+                    <text x="480" y="650" font-family="Arial, sans-serif" font-size="24" text-anchor="middle"
+                        fill="white" font-weight="bold">2</text>
+                    <text x="530" y="630" font-family="Arial, sans-serif" font-size="13" font-weight="bold"
+                        fill="#2C3E50">Duplicatas Removidas</text>
+                    <text x="530" y="650" font-family="Arial, sans-serif" font-size="11" fill="#7F8C8D">
+                        12,340 duplicatas identificadas
+                    </text>
+                    <text x="530" y="665" font-family="Arial, sans-serif" font-size="11" fill="#7F8C8D">
+                        Redução de 3.2% no volume
+                    </text>
+
+                    <circle cx="920" cy="640" r="30" fill="#27AE60" />
+                    <text x="920" y="650" font-family="Arial, sans-serif" font-size="24" text-anchor="middle"
+                        fill="white" font-weight="bold">3</text>
+                    <text x="970" y="630" font-family="Arial, sans-serif" font-size="13" font-weight="bold"
+                        fill="#2C3E50">Consistência Schema</text>
+                    <text x="970" y="650" font-family="Arial, sans-serif" font-size="11" fill="#7F8C8D">
+                        100% das colunas tipadas
+                    </text>
+                    <text x="970" y="665" font-family="Arial, sans-serif" font-size="11" fill="#7F8C8D">
+                        Zero type mismatches
+                    </text>
+
+                    <circle cx="120" cy="740" r="30" fill="#9B59B6" />
+                    <text x="120" y="750" font-family="Arial, sans-serif" font-size="24" text-anchor="middle"
+                        fill="white" font-weight="bold">4</text>
+                    <text x="170" y="730" font-family="Arial, sans-serif" font-size="13" font-weight="bold"
+                        fill="#2C3E50">Padronização CPF</text>
+                    <text x="170" y="750" font-family="Arial, sans-serif" font-size="11" fill="#7F8C8D">
+                        100% normalizado (11 dígitos)
+                    </text>
+                    <text x="170" y="765" font-family="Arial, sans-serif" font-size="11" fill="#7F8C8D">
+                        Formatos variados unificados
+                    </text>
+
+                    <circle cx="480" cy="740" r="30" fill="#F39C12" />
+                    <text x="480" y="750" font-family="Arial, sans-serif" font-size="24" text-anchor="middle"
+                        fill="white" font-weight="bold">5</text>
+                    <text x="530" y="730" font-family="Arial, sans-serif" font-size="13" font-weight="bold"
+                        fill="#2C3E50">Conversão de Datas</text>
+                    <text x="530" y="750" font-family="Arial, sans-serif" font-size="11" fill="#7F8C8D">
+                        15 formatos → ISO 8601
+                    </text>
+                    <text x="530" y="765" font-family="Arial, sans-serif" font-size="11" fill="#7F8C8D">
+                        99.8% convertidos com sucesso
+                    </text>
+
+                    <circle cx="920" cy="740" r="30" fill="#E74C3C" />
+                    <text x="920" y="750" font-family="Arial, sans-serif" font-size="24" text-anchor="middle"
+                        fill="white" font-weight="bold">6</text>
+                    <text x="970" y="730" font-family="Arial, sans-serif" font-size="13" font-weight="bold"
+                        fill="#2C3E50">Tempo de Processamento</text>
+                    <text x="970" y="750" font-family="Arial, sans-serif" font-size="11" fill="#7F8C8D">
+                        Pipeline: 12 minutos
+                    </text>
+                    <text x="970" y="765" font-family="Arial, sans-serif" font-size="11" fill="#7F8C8D">
+                        5M registros/hora (Spark)
+                    </text>
+
+                    <text x="700" y="810" font-family="Arial, sans-serif" font-size="12" text-anchor="middle"
+                        fill="#34495E" font-style="italic">
+                        "BRONZE = Dados confiáveis para a próxima camada • Fundação sólida para Data Vault"
+                    </text>
+                </svg>
+            </div>
+
+            <!-- Código dbt exemplo -->
+            <div
+                style="margin-top: 2rem; padding: 1.5rem; background: #f8f9fa; border-radius: 8px; border-left: 4px solid #CD7F32;">
+                <h3 style="color: #2C3E50; margin-bottom: 1rem;">📄 Exemplo: dbt Model para Bronze</h3>
+                <pre
+                    style="background: #2C3E50; color: #ECF0F1; padding: 1rem; border-radius: 5px; overflow-x: auto; font-family: 'Courier New', monospace; font-size: 0.85rem;">-- models/bronze/artistas.sql
+{{
+  config(
+    materialized='incremental',
+    unique_key='cpf',
+    on_schema_change='fail'
+  )
+}}
+
+WITH source AS (
+  SELECT * FROM {{ source('raw', 'salic_artistas') }}
+  WHERE load_date >= CURRENT_DATE - INTERVAL '1 day'
+),
+
+cleaned AS (
+  SELECT
+    regexp_replace(cpf, '[^0-9]', '') AS cpf,
+    upper(trim(nome)) AS nome,
+    to_date(data_cadastro, 'YYYY-MM-DD') AS data_cadastro,
+    current_timestamp() AS load_timestamp,
+    'salic' AS source_system
+  FROM source
+)
+
+SELECT * FROM cleaned
+WHERE length(cpf) = 11  -- Validação dbt test
+  AND cpf IS NOT NULL</pre>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.querySelectorAll('.nav-link').forEach(link => {
+            link.addEventListener('click', (e) => {
+                e.preventDefault();
+                const layer = link.getAttribute('href').substring(1);
+
+                // Mapeia os links para os arquivos HTML corretos
+                const pageMap = {
+                    'raw': 'raw.html',
+                    'bronze': 'bronze.html',
+                    'silver': 'datavault.html',
+                    'gold': 'gold.html'
+                };
+
+                // Navega para a página correspondente
+                if (pageMap[layer]) {
+                    window.location.href = pageMap[layer];
+                }
+            });
+        });
+    </script>
+
+</body>
+
+</html>

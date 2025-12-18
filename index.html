@@ -1,0 +1,578 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Arquitetura Data Lakehouse - MinC</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 2rem 0;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 1rem;
+        }
+
+        .header {
+            text-align: center;
+            color: white;
+            margin-bottom: 3rem;
+        }
+
+        .header h1 {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        .header p {
+            font-size: 1.2rem;
+            opacity: 0.95;
+        }
+
+        .architecture-card {
+            background: white;
+            border-radius: 16px;
+            padding: 2rem;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+            margin-bottom: 2rem;
+        }
+
+        .diagram-container {
+            width: 100%;
+            overflow-x: auto;
+            margin: 2rem 0;
+        }
+
+        .layers-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+            margin-top: 2rem;
+        }
+
+        .layer-card {
+            background: white;
+            border-radius: 12px;
+            padding: 1.5rem;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 3px solid transparent;
+        }
+
+        .layer-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+        }
+
+        .layer-card.raw {
+            border-color: #e53e3e;
+        }
+
+        .layer-card.raw:hover {
+            background: linear-gradient(135deg, #e53e3e10 0%, #c5303010 100%);
+        }
+
+        .layer-card.bronze {
+            border-color: #cd7f32;
+        }
+
+        .layer-card.bronze:hover {
+            background: linear-gradient(135deg, #cd7f3210 0%, #a0522d10 100%);
+        }
+
+        .layer-card.silver {
+            border-color: #c0c0c0;
+        }
+
+        .layer-card.silver:hover {
+            background: linear-gradient(135deg, #c0c0c010 0%, #a9a9a910 100%);
+        }
+
+        .layer-card.gold {
+            border-color: #ffd700;
+        }
+
+        .layer-card.gold:hover {
+            background: linear-gradient(135deg, #ffd70010 0%, #ffa50010 100%);
+        }
+
+        .layer-badge {
+            display: inline-block;
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: bold;
+            margin-bottom: 1rem;
+        }
+
+        .badge-raw {
+            background: #e53e3e;
+            color: white;
+        }
+
+        .badge-bronze {
+            background: #cd7f32;
+            color: white;
+        }
+
+        .badge-silver {
+            background: #c0c0c0;
+            color: #333;
+        }
+
+        .badge-gold {
+            background: #ffd700;
+            color: #333;
+        }
+
+        .layer-card h3 {
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+            color: #2c3e50;
+        }
+
+        .layer-card ul {
+            list-style: none;
+            margin: 1rem 0;
+        }
+
+        .layer-card ul li {
+            padding: 0.5rem 0;
+            color: #7f8c8d;
+            font-size: 0.95rem;
+        }
+
+        .layer-card ul li::before {
+            content: "→ ";
+            color: #667eea;
+            font-weight: bold;
+            margin-right: 0.5rem;
+        }
+
+        .cta-button {
+            display: inline-block;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            margin-top: 1rem;
+        }
+
+        .cta-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+        }
+
+        svg {
+            max-width: 100%;
+            height: auto;
+        }
+
+        .tech-stack {
+            background: #f8f9fa;
+            border-radius: 12px;
+            padding: 2rem;
+            margin-top: 2rem;
+        }
+
+        .tech-stack h3 {
+            color: #2c3e50;
+            margin-bottom: 1.5rem;
+            text-align: center;
+        }
+
+        .tech-items {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+            justify-content: center;
+        }
+
+        .tech-item {
+            background: white;
+            padding: 0.75rem 1.5rem;
+            border-radius: 20px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            font-weight: 600;
+            color: #667eea;
+        }
+
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 2rem;
+            }
+
+            .layers-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🏛️ Data Lakehouse - Ministério da Cultura</h1>
+            <p>Arquitetura Completa de Dados com Medallion Architecture</p>
+        </div>
+
+        <div class="architecture-card">
+            <h2 style="text-align: center; color: #2c3e50; margin-bottom: 2rem;">📊 Visão Geral da Arquitetura</h2>
+
+            <div class="diagram-container">
+                <svg viewBox="0 0 1200 800" xmlns="http://www.w3.org/2000/svg">
+                    <defs>
+                        <linearGradient id="rawGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+                            <stop offset="0%" style="stop-color:#E53E3E;stop-opacity:1" />
+                            <stop offset="100%" style="stop-color:#C53030;stop-opacity:1" />
+                        </linearGradient>
+                        <linearGradient id="bronzeGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+                            <stop offset="0%" style="stop-color:#CD7F32;stop-opacity:1" />
+                            <stop offset="100%" style="stop-color:#A0522D;stop-opacity:1" />
+                        </linearGradient>
+                        <linearGradient id="silverGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+                            <stop offset="0%" style="stop-color:#C0C0C0;stop-opacity:1" />
+                            <stop offset="100%" style="stop-color:#A9A9A9;stop-opacity:1" />
+                        </linearGradient>
+                        <linearGradient id="goldGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+                            <stop offset="0%" style="stop-color:#FFD700;stop-opacity:1" />
+                            <stop offset="100%" style="stop-color:#FFA500;stop-opacity:1" />
+                        </linearGradient>
+                        <filter id="shadow">
+                            <feDropShadow dx="2" dy="2" stdDeviation="4" flood-opacity="0.3" />
+                        </filter>
+                        <marker id="arrow" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto">
+                            <path d="M0,0 L0,6 L9,3 z" fill="#667eea" />
+                        </marker>
+                    </defs>
+
+                    <!-- Fontes de Dados -->
+                    <text x="600" y="40" font-family="Arial" font-size="20" font-weight="bold" text-anchor="middle"
+                        fill="#2C3E50">
+                        🔄 Fluxo de Dados - Medallion Architecture
+                    </text>
+
+                    <g filter="url(#shadow)">
+                        <rect x="50" y="80" width="180" height="100" rx="8" fill="#805AD5" stroke="#6B46C1"
+                            stroke-width="2" />
+                        <text x="140" y="110" font-family="Arial" font-size="14" font-weight="bold" text-anchor="middle"
+                            fill="white">
+                            📊 Fontes de Dados
+                        </text>
+                        <text x="60" y="135" font-family="monospace" font-size="10" fill="white">• Sistema Salic</text>
+                        <text x="60" y="152" font-family="monospace" font-size="10" fill="white">• Mapas
+                            Culturais</text>
+                        <text x="60" y="169" font-family="monospace" font-size="10" fill="white">• Planilhas
+                            Excel</text>
+                    </g>
+
+                    <!-- RAW -->
+                    <path d="M 230 130 L 290 130" stroke="#667eea" stroke-width="3" marker-end="url(#arrow)" />
+
+                    <a href="raw.html" style="cursor: pointer;">
+                        <g filter="url(#shadow)">
+                            <rect x="290" y="80" width="180" height="100" rx="8" fill="url(#rawGrad)" stroke="#C53030"
+                                stroke-width="3" style="transition: all 0.3s ease;" />
+                            <text x="380" y="110" font-family="Arial" font-size="16" font-weight="bold"
+                                text-anchor="middle" fill="white">
+                                RAW
+                            </text>
+                            <text x="300" y="135" font-family="monospace" font-size="10" fill="white">• Dados
+                                brutos</text>
+                            <text x="300" y="152" font-family="monospace" font-size="10" fill="white">• Sem
+                                transformação</text>
+                            <text x="300" y="169" font-family="monospace" font-size="10" fill="white">• Delta
+                                Lake</text>
+                        </g>
+                    </a>
+
+                    <!-- BRONZE -->
+                    <path d="M 470 130 L 530 130" stroke="#667eea" stroke-width="3" marker-end="url(#arrow)" />
+
+                    <a href="bronze.html" style="cursor: pointer;">
+                        <g filter="url(#shadow)">
+                            <rect x="530" y="80" width="180" height="100" rx="8" fill="url(#bronzeGrad)"
+                                stroke="#A0522D" stroke-width="3" style="transition: all 0.3s ease;" />
+                            <text x="620" y="110" font-family="Arial" font-size="16" font-weight="bold"
+                                text-anchor="middle" fill="white">
+                                BRONZE
+                            </text>
+                            <text x="540" y="135" font-family="monospace" font-size="10" fill="white">• Limpeza</text>
+                            <text x="540" y="152" font-family="monospace" font-size="10" fill="white">•
+                                Padronização</text>
+                            <text x="540" y="169" font-family="monospace" font-size="10" fill="white">• Validação</text>
+                        </g>
+                    </a>
+
+                    <!-- SILVER -->
+                    <path d="M 710 130 L 770 130" stroke="#667eea" stroke-width="3" marker-end="url(#arrow)" />
+
+                    <a href="datavault.html" style="cursor: pointer;">
+                        <g filter="url(#shadow)">
+                            <rect x="770" y="80" width="180" height="100" rx="8" fill="url(#silverGrad)"
+                                stroke="#A9A9A9" stroke-width="3" style="transition: all 0.3s ease;" />
+                            <text x="860" y="110" font-family="Arial" font-size="16" font-weight="bold"
+                                text-anchor="middle" fill="#333">
+                                SILVER
+                            </text>
+                            <text x="780" y="135" font-family="monospace" font-size="10" fill="#333">• Data Vault
+                                2.1</text>
+                            <text x="780" y="152" font-family="monospace" font-size="10" fill="#333">• Hubs &
+                                Links</text>
+                            <text x="780" y="169" font-family="monospace" font-size="10" fill="#333">•
+                                Historização</text>
+                        </g>
+                    </a>
+
+                    <!-- GOLD -->
+                    <path d="M 950 130 L 1010 130" stroke="#667eea" stroke-width="3" marker-end="url(#arrow)" />
+
+                    <a href="gold.html" style="cursor: pointer;">
+                        <g filter="url(#shadow)">
+                            <rect x="1010" y="80" width="180" height="100" rx="8" fill="url(#goldGrad)" stroke="#FFA500"
+                                stroke-width="3" style="transition: all 0.3s ease;" />
+                            <text x="1100" y="110" font-family="Arial" font-size="16" font-weight="bold"
+                                text-anchor="middle" fill="#333">
+                                GOLD
+                            </text>
+                            <text x="1020" y="135" font-family="monospace" font-size="10" fill="#333">• Data
+                                Marts</text>
+                            <text x="1020" y="152" font-family="monospace" font-size="10" fill="#333">• KPIs</text>
+                            <text x="1020" y="169" font-family="monospace" font-size="10" fill="#333">•
+                                Dashboards</text>
+                        </g>
+                    </a>
+
+                    <!-- Detalhes de cada camada -->
+                    <rect x="50" y="250" width="1140" height="500" rx="10" fill="#F8F9FA" stroke="#DEE2E6"
+                        stroke-width="2" />
+
+                    <!-- RAW Details -->
+                    <rect x="80" y="280" width="240" height="180" rx="8" fill="url(#rawGrad)" opacity="0.1"
+                        stroke="#E53E3E" stroke-width="2" />
+                    <text x="200" y="310" font-family="Arial" font-size="14" font-weight="bold" text-anchor="middle"
+                        fill="#E53E3E">
+                        📥 RAW LAYER
+                    </text>
+                    <text x="90" y="340" font-family="Arial" font-size="11" fill="#2C3E50">✓ Imutabilidade</text>
+                    <text x="90" y="365" font-family="Arial" font-size="11" fill="#2C3E50">✓ Schema-on-Read</text>
+                    <text x="90" y="390" font-family="Arial" font-size="11" fill="#2C3E50">✓ Particionamento
+                        temporal</text>
+                    <text x="90" y="415" font-family="Arial" font-size="11" fill="#2C3E50">✓ Formato Parquet</text>
+                    <text x="90" y="440" font-family="Arial" font-size="11" fill="#2C3E50">✓ Compressão Snappy</text>
+
+                    <!-- BRONZE Details -->
+                    <rect x="350" y="280" width="240" height="180" rx="8" fill="url(#bronzeGrad)" opacity="0.1"
+                        stroke="#CD7F32" stroke-width="2" />
+                    <text x="470" y="310" font-family="Arial" font-size="14" font-weight="bold" text-anchor="middle"
+                        fill="#CD7F32">
+                        🧹 BRONZE LAYER
+                    </text>
+                    <text x="360" y="340" font-family="Arial" font-size="11" fill="#2C3E50">✓ Schema Enforcement</text>
+                    <text x="360" y="365" font-family="Arial" font-size="11" fill="#2C3E50">✓ Padronização
+                        CPF/CNPJ</text>
+                    <text x="360" y="390" font-family="Arial" font-size="11" fill="#2C3E50">✓ Deduplicação</text>
+                    <text x="360" y="415" font-family="Arial" font-size="11" fill="#2C3E50">✓ Validação de
+                        qualidade</text>
+                    <text x="360" y="440" font-family="Arial" font-size="11" fill="#2C3E50">✓ dbt + Spark</text>
+
+                    <!-- SILVER Details -->
+                    <rect x="620" y="280" width="240" height="180" rx="8" fill="url(#silverGrad)" opacity="0.1"
+                        stroke="#C0C0C0" stroke-width="2" />
+                    <text x="740" y="310" font-family="Arial" font-size="14" font-weight="bold" text-anchor="middle"
+                        fill="#666">
+                        🔗 SILVER LAYER
+                    </text>
+                    <text x="630" y="340" font-family="Arial" font-size="11" fill="#2C3E50">✓ Data Vault 2.1</text>
+                    <text x="630" y="365" font-family="Arial" font-size="11" fill="#2C3E50">✓ Hubs (identidades)</text>
+                    <text x="630" y="390" font-family="Arial" font-size="11" fill="#2C3E50">✓ Links
+                        (relacionamentos)</text>
+                    <text x="630" y="415" font-family="Arial" font-size="11" fill="#2C3E50">✓ Satellites
+                        (contexto)</text>
+                    <text x="630" y="440" font-family="Arial" font-size="11" fill="#2C3E50">✓ Time Travel</text>
+
+                    <!-- GOLD Details -->
+                    <rect x="890" y="280" width="240" height="180" rx="8" fill="url(#goldGrad)" opacity="0.1"
+                        stroke="#FFD700" stroke-width="2" />
+                    <text x="1010" y="310" font-family="Arial" font-size="14" font-weight="bold" text-anchor="middle"
+                        fill="#B8860B">
+                        📊 GOLD LAYER
+                    </text>
+                    <text x="900" y="340" font-family="Arial" font-size="11" fill="#2C3E50">✓ Star Schema</text>
+                    <text x="900" y="365" font-family="Arial" font-size="11" fill="#2C3E50">✓ Agregações
+                        pré-computadas</text>
+                    <text x="900" y="390" font-family="Arial" font-size="11" fill="#2C3E50">✓ Data Marts
+                        específicos</text>
+                    <text x="900" y="415" font-family="Arial" font-size="11" fill="#2C3E50">✓ Business-friendly</text>
+                    <text x="900" y="440" font-family="Arial" font-size="11" fill="#2C3E50">✓ BI & Analytics</text>
+
+                    <!-- Ferramentas -->
+                    <text x="600" y="510" font-family="Arial" font-size="16" font-weight="bold" text-anchor="middle"
+                        fill="#2C3E50">
+                        🛠️ Stack Tecnológico
+                    </text>
+
+                    <rect x="180" y="540" width="150" height="50" rx="8" fill="#667eea" opacity="0.9" />
+                    <text x="255" y="570" font-family="Arial" font-size="13" font-weight="bold" text-anchor="middle"
+                        fill="white">
+                        Apache Spark
+                    </text>
+
+                    <rect x="360" y="540" width="150" height="50" rx="8" fill="#FF6947" opacity="0.9" />
+                    <text x="435" y="570" font-family="Arial" font-size="13" font-weight="bold" text-anchor="middle"
+                        fill="white">
+                        dbt (Transform)
+                    </text>
+
+                    <rect x="540" y="540" width="150" height="50" rx="8" fill="#00ADD8" opacity="0.9" />
+                    <text x="615" y="570" font-family="Arial" font-size="13" font-weight="bold" text-anchor="middle"
+                        fill="white">
+                        Delta Lake
+                    </text>
+
+                    <rect x="720" y="540" width="150" height="50" rx="8" fill="#F2C811" opacity="0.9" />
+                    <text x="795" y="570" font-family="Arial" font-size="13" font-weight="bold" text-anchor="middle"
+                        fill="#333">
+                        Python
+                    </text>
+
+                    <rect x="900" y="540" width="150" height="50" rx="8" fill="#E97627" opacity="0.9" />
+                    <text x="975" y="570" font-family="Arial" font-size="13" font-weight="bold" text-anchor="middle"
+                        fill="white">
+                        Power BI
+                    </text>
+
+                    <!-- Benefícios -->
+                    <text x="600" y="640" font-family="Arial" font-size="16" font-weight="bold" text-anchor="middle"
+                        fill="#2C3E50">
+                        ✨ Benefícios da Arquitetura
+                    </text>
+
+                    <text x="200" y="680" font-family="Arial" font-size="12" text-anchor="middle" fill="#667eea">
+                        🔍 Rastreabilidade
+                    </text>
+                    <text x="200" y="700" font-family="Arial" font-size="10" text-anchor="middle" fill="#7F8C8D">
+                        Completa (TCU)
+                    </text>
+
+                    <text x="420" y="680" font-family="Arial" font-size="12" text-anchor="middle" fill="#667eea">
+                        ⚡ Performance
+                    </text>
+                    <text x="420" y="700" font-family="Arial" font-size="10" text-anchor="middle" fill="#7F8C8D">
+                        Otimizada
+                    </text>
+
+                    <text x="640" y="680" font-family="Arial" font-size="12" text-anchor="middle" fill="#667eea">
+                        🔒 Qualidade
+                    </text>
+                    <text x="640" y="700" font-family="Arial" font-size="10" text-anchor="middle" fill="#7F8C8D">
+                        Garantida
+                    </text>
+
+                    <text x="860" y="680" font-family="Arial" font-size="12" text-anchor="middle" fill="#667eea">
+                        📈 Escalabilidade
+                    </text>
+                    <text x="860" y="700" font-family="Arial" font-size="10" text-anchor="middle" fill="#7F8C8D">
+                        Ilimitada
+                    </text>
+
+                    <text x="1040" y="680" font-family="Arial" font-size="12" text-anchor="middle" fill="#667eea">
+                        ⏱️ Time Travel
+                    </text>
+                    <text x="1040" y="700" font-family="Arial" font-size="10" text-anchor="middle" fill="#7F8C8D">
+                        Histórico
+                    </text>
+                </svg>
+            </div>
+        </div>
+
+        <div class="layers-grid">
+            <div class="layer-card raw" onclick="window.location.href='raw.html'">
+                <span class="layer-badge badge-raw">CAMADA RAW</span>
+                <h3>📥 Ingestão de Dados Brutos</h3>
+                <ul>
+                    <li>Dados originais sem transformação</li>
+                    <li>Múltiplas fontes (APIs, CSV, Excel)</li>
+                    <li>Formato Parquet com Delta Lake</li>
+                    <li>Imutabilidade garantida</li>
+                    <li>Particionamento temporal</li>
+                </ul>
+                <a href="raw.html" class="cta-button">Explorar RAW →</a>
+            </div>
+
+            <div class="layer-card bronze" onclick="window.location.href='bronze.html'">
+                <span class="layer-badge badge-bronze">CAMADA BRONZE</span>
+                <h3>🧹 Limpeza e Padronização</h3>
+                <ul>
+                    <li>Schema enforcement com Spark</li>
+                    <li>Padronização de CPF/CNPJ</li>
+                    <li>Deduplicação inteligente</li>
+                    <li>Validação de qualidade</li>
+                    <li>Pipeline dbt automatizado</li>
+                </ul>
+                <a href="bronze.html" class="cta-button">Explorar BRONZE →</a>
+            </div>
+
+            <div class="layer-card silver" onclick="window.location.href='datavault.html'">
+                <span class="layer-badge badge-silver">CAMADA SILVER</span>
+                <h3>🔗 Modelagem Data Vault 2.1</h3>
+                <ul>
+                    <li>Hubs: identidades únicas</li>
+                    <li>Links: relacionamentos M:N</li>
+                    <li>Satellites: contexto histórico</li>
+                    <li>Time travel completo</li>
+                    <li>Auditável pelo TCU</li>
+                </ul>
+                <a href="datavault.html" class="cta-button">Explorar SILVER →</a>
+            </div>
+
+            <div class="layer-card gold" onclick="window.location.href='gold.html'">
+                <span class="layer-badge badge-gold">CAMADA GOLD</span>
+                <h3>📊 Data Marts Analíticos</h3>
+                <ul>
+                    <li>Star Schema otimizado</li>
+                    <li>Agregações pré-computadas</li>
+                    <li>KPIs de negócio</li>
+                    <li>Consumo por BI tools</li>
+                    <li>Business-friendly</li>
+                </ul>
+                <a href="gold.html" class="cta-button">Explorar GOLD →</a>
+            </div>
+        </div>
+
+        <div class="architecture-card tech-stack">
+            <h3>🛠️ Stack Tecnológico Completo</h3>
+            <div class="tech-items">
+                <span class="tech-item">Apache Spark</span>
+                <span class="tech-item">dbt (Data Build Tool)</span>
+                <span class="tech-item">Delta Lake</span>
+                <span class="tech-item">Python</span>
+                <span class="tech-item">Parquet</span>
+                <span class="tech-item">Data Vault 2.1</span>
+                <span class="tech-item">Power BI</span>
+                <span class="tech-item">Tableau</span>
+                <span class="tech-item">AWS S3</span>
+                <span class="tech-item">SQL</span>
+            </div>
+        </div>
+    </div>
+</body>
+
+</html>

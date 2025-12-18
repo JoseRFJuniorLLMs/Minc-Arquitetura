@@ -1,0 +1,599 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Arquitetura Data Lakehouse - MinC - Camada GOLD</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+
+        .navbar {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            padding: 1rem 2rem;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+
+        .nav-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #667eea;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .nav-menu {
+            display: flex;
+            gap: 0.5rem;
+            list-style: none;
+        }
+
+        .nav-item {
+            position: relative;
+        }
+
+        .nav-link {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.75rem 1.5rem;
+            text-decoration: none;
+            color: #4a5568;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+            font-weight: 500;
+        }
+
+        .nav-link:hover {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+        }
+
+        .nav-link.active {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+        }
+
+        .layer-badge {
+            display: inline-block;
+            padding: 0.25rem 0.5rem;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            font-weight: bold;
+        }
+
+        .badge-raw {
+            background: #e53e3e;
+            color: white;
+        }
+
+        .badge-bronze {
+            background: #cd7f32;
+            color: white;
+        }
+
+        .badge-silver {
+            background: #c0c0c0;
+            color: #333;
+        }
+
+        .badge-gold {
+            background: #ffd700;
+            color: #333;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 2rem auto;
+            padding: 0 1rem;
+        }
+
+        .content-card {
+            background: white;
+            border-radius: 16px;
+            padding: 2rem;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+        }
+
+        .breadcrumb {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: 1.5rem;
+            color: #718096;
+            font-size: 0.9rem;
+        }
+
+        .diagram-container {
+            width: 100%;
+            overflow-x: auto;
+            margin-top: 1rem;
+        }
+
+        svg {
+            max-width: 100%;
+            height: auto;
+        }
+
+        @media (max-width: 768px) {
+            .nav-menu {
+                flex-direction: column;
+                width: 100%;
+            }
+
+            .nav-container {
+                flex-direction: column;
+                gap: 1rem;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="logo">
+                🏛️ MinC Data Lakehouse
+            </div>
+            <ul class="nav-menu">
+                <li class="nav-item">
+                    <a href="#raw" class="nav-link">
+                        <span class="layer-badge badge-raw">RAW</span>
+                        Camada Raw
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="#bronze" class="nav-link">
+                        <span class="layer-badge badge-bronze">BRONZE</span>
+                        Camada Bronze
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="#silver" class="nav-link">
+                        <span class="layer-badge badge-silver">SILVER</span>
+                        Camada Silver
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="#gold" class="nav-link active">
+                        <span class="layer-badge badge-gold">GOLD</span>
+                        Camada Gold
+                    </a>
+                </li>
+            </ul>
+        </div>
+    </nav>
+
+    <div class="container">
+        <div class="content-card">
+            <div class="breadcrumb">
+                🏠 Início → <span class="layer-badge badge-gold">GOLD</span> → Marts Analíticos
+            </div>
+
+            <div class="diagram-container">
+                <svg viewBox="0 0 1400 1250" xmlns="http://www.w3.org/2000/svg">
+                    <defs>
+                        <linearGradient id="goldGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+                            <stop offset="0%" style="stop-color:#FFD700;stop-opacity:1" />
+                            <stop offset="100%" style="stop-color:#FFA500;stop-opacity:1" />
+                        </linearGradient>
+                        <linearGradient id="silverGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+                            <stop offset="0%" style="stop-color:#C0C0C0;stop-opacity:1" />
+                            <stop offset="100%" style="stop-color:#A9A9A9;stop-opacity:1" />
+                        </linearGradient>
+                        <linearGradient id="biGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+                            <stop offset="0%" style="stop-color:#667eea;stop-opacity:1" />
+                            <stop offset="100%" style="stop-color:#764ba2;stop-opacity:1" />
+                        </linearGradient>
+                        <filter id="shadow">
+                            <feDropShadow dx="2" dy="2" stdDeviation="3" flood-opacity="0.3" />
+                        </filter>
+                    </defs>
+
+                    <text x="700" y="35" font-family="Arial, sans-serif" font-size="24" font-weight="bold"
+                        text-anchor="middle" fill="#2C3E50">
+                        Camada GOLD - Data Marts para Consumo Analítico
+                    </text>
+                    <text x="700" y="60" font-family="Arial, sans-serif" font-size="14" text-anchor="middle"
+                        fill="#7F8C8D">
+                        Agregações • KPIs • Dashboards • Casos de Uso Específicos
+                    </text>
+
+                    <!-- Silver Layer (entrada) -->
+                    <g filter="url(#shadow)">
+                        <rect x="500" y="100" width="400" height="180" rx="10" fill="url(#silverGrad)" stroke="#A9A9A9"
+                            stroke-width="3" />
+                        <text x="700" y="130" font-family="Arial, sans-serif" font-size="16" font-weight="bold"
+                            text-anchor="middle" fill="white">⚡ SILVER Layer (Data Vault 2.1)</text>
+                        <text x="520" y="160" font-family="monospace" font-size="10" fill="white">
+                            • HUB_ARTISTA (identidades únicas)
+                        </text>
+                        <text x="520" y="180" font-family="monospace" font-size="10" fill="white">
+                            • HUB_EDITAL (editais culturais)
+                        </text>
+                        <text x="520" y="200" font-family="monospace" font-size="10" fill="white">
+                            • LINK_INSCRICAO (relacionamentos)
+                        </text>
+                        <text x="520" y="220" font-family="monospace" font-size="10" fill="white">
+                            • SAT_* (histórico completo com time travel)
+                        </text>
+                        <text x="700" y="255" font-family="Arial, sans-serif" font-size="9" text-anchor="middle"
+                            fill="#333" font-weight="bold">
+                            Modelagem normalizada • Auditável • Historizado
+                        </text>
+                    </g>
+
+                    <!-- Setas para marts -->
+                    <defs>
+                        <marker id="arrowGold" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto"
+                            markerUnits="strokeWidth">
+                            <path d="M0,0 L0,6 L9,3 z" fill="#FFD700" />
+                        </marker>
+                    </defs>
+                    <path d="M 400 190 L 280 340" stroke="#FFD700" stroke-width="3" fill="none"
+                        marker-end="url(#arrowGold)" />
+                    <path d="M 700 280 L 700 340" stroke="#FFD700" stroke-width="3" fill="none"
+                        marker-end="url(#arrowGold)" />
+                    <path d="M 1000 190 L 1120 340" stroke="#FFD700" stroke-width="3" fill="none"
+                        marker-end="url(#arrowGold)" />
+
+                    <!-- Data Marts GOLD -->
+                    <g filter="url(#shadow)">
+                        <rect x="50" y="340" width="360" height="220" rx="10" fill="url(#goldGrad)" stroke="#FFA500"
+                            stroke-width="3" />
+                        <text x="230" y="370" font-family="Arial, sans-serif" font-size="16" font-weight="bold"
+                            text-anchor="middle" fill="#333">📊 Mart: Desempenho Editais</text>
+                        <text x="70" y="400" font-family="monospace" font-size="10" fill="#333">
+                            • dim_edital (dimensão)
+                        </text>
+                        <text x="70" y="420" font-family="monospace" font-size="10" fill="#333">
+                            • dim_tempo (calendário)
+                        </text>
+                        <text x="70" y="440" font-family="monospace" font-size="10" fill="#333">
+                            • fact_inscricoes (fato)
+                        </text>
+                        <rect x="60" y="460" width="340" height="90" rx="5" fill="#FFA500" opacity="0.7" />
+                        <text x="230" y="480" font-family="Arial, sans-serif" font-size="11" text-anchor="middle"
+                            fill="white" font-weight="bold">📈 Métricas</text>
+                        <text x="70" y="500" font-family="monospace" font-size="9" fill="white">
+                            • Total de inscrições por edital
+                        </text>
+                        <text x="70" y="515" font-family="monospace" font-size="9" fill="white">
+                            • Taxa de aprovação (%)
+                        </text>
+                        <text x="70" y="530" font-family="monospace" font-size="9" fill="white">
+                            • Valor médio por projeto
+                        </text>
+                        <text x="70" y="545" font-family="monospace" font-size="9" fill="white">
+                            • Tempo médio de análise
+                        </text>
+                    </g>
+
+                    <g filter="url(#shadow)">
+                        <rect x="520" y="340" width="360" height="220" rx="10" fill="url(#goldGrad)" stroke="#FFA500"
+                            stroke-width="3" />
+                        <text x="700" y="370" font-family="Arial, sans-serif" font-size="16" font-weight="bold"
+                            text-anchor="middle" fill="#333">🎭 Mart: Perfil Artistas</text>
+                        <text x="540" y="400" font-family="monospace" font-size="10" fill="#333">
+                            • dim_artista (dimensão)
+                        </text>
+                        <text x="540" y="420" font-family="monospace" font-size="10" fill="#333">
+                            • dim_regiao (geográfica)
+                        </text>
+                        <text x="540" y="440" font-family="monospace" font-size="10" fill="#333">
+                            • fact_projetos (fato)
+                        </text>
+                        <rect x="530" y="460" width="340" height="90" rx="5" fill="#FFA500" opacity="0.7" />
+                        <text x="700" y="480" font-family="Arial, sans-serif" font-size="11" text-anchor="middle"
+                            fill="white" font-weight="bold">📈 Métricas</text>
+                        <text x="540" y="500" font-family="monospace" font-size="9" fill="white">
+                            • Artistas ativos vs inativos
+                        </text>
+                        <text x="540" y="515" font-family="monospace" font-size="9" fill="white">
+                            • Distribuição por região
+                        </text>
+                        <text x="540" y="530" font-family="monospace" font-size="9" fill="white">
+                            • Projetos aprovados (histórico)
+                        </text>
+                        <text x="540" y="545" font-family="monospace" font-size="9" fill="white">
+                            • Receita total captada
+                        </text>
+                    </g>
+
+                    <g filter="url(#shadow)">
+                        <rect x="990" y="340" width="360" height="220" rx="10" fill="url(#goldGrad)" stroke="#FFA500"
+                            stroke-width="3" />
+                        <text x="1170" y="370" font-family="Arial, sans-serif" font-size="16" font-weight="bold"
+                            text-anchor="middle" fill="#333">💰 Mart: Orçamento & Compliance</text>
+                        <text x="1010" y="400" font-family="monospace" font-size="10" fill="#333">
+                            • dim_categoria (tipo projeto)
+                        </text>
+                        <text x="1010" y="420" font-family="monospace" font-size="10" fill="#333">
+                            • dim_status (aprovação)
+                        </text>
+                        <text x="1010" y="440" font-family="monospace" font-size="10" fill="#333">
+                            • fact_execucao (fato)
+                        </text>
+                        <rect x="1000" y="460" width="340" height="90" rx="5" fill="#FFA500" opacity="0.7" />
+                        <text x="1170" y="480" font-family="Arial, sans-serif" font-size="11" text-anchor="middle"
+                            fill="white" font-weight="bold">📈 Métricas TCU</text>
+                        <text x="1010" y="500" font-family="monospace" font-size="9" fill="white">
+                            • Orçamento executado vs previsto
+                        </text>
+                        <text x="1010" y="515" font-family="monospace" font-size="9" fill="white">
+                            • Projetos em conformidade (%)
+                        </text>
+                        <text x="1010" y="530" font-family="monospace" font-size="9" fill="white">
+                            • Auditoria: mudanças rastreadas
+                        </text>
+                        <text x="1010" y="545" font-family="monospace" font-size="9" fill="white">
+                            • SLA de prestação de contas
+                        </text>
+                    </g>
+
+                    <!-- Consumidores -->
+                    <defs>
+                        <marker id="arrowPurple" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto"
+                            markerUnits="strokeWidth">
+                            <path d="M0,0 L0,6 L9,3 z" fill="#667eea" />
+                        </marker>
+                    </defs>
+                    <path d="M 230 560 L 230 620" stroke="#667eea" stroke-width="3" fill="none"
+                        marker-end="url(#arrowPurple)" />
+                    <path d="M 700 560 L 700 620" stroke="#667eea" stroke-width="3" fill="none"
+                        marker-end="url(#arrowPurple)" />
+                    <path d="M 1170 560 L 1170 620" stroke="#667eea" stroke-width="3" fill="none"
+                        marker-end="url(#arrowPurple)" />
+
+                    <g filter="url(#shadow)">
+                        <rect x="100" y="620" width="200" height="100" rx="10" fill="url(#biGrad)" stroke="#764ba2"
+                            stroke-width="2" />
+                        <text x="200" y="650" font-family="Arial, sans-serif" font-size="14" font-weight="bold"
+                            text-anchor="middle" fill="white">📊 Power BI</text>
+                        <text x="120" y="675" font-family="monospace" font-size="9" fill="white">
+                            • Dashboard Executivo
+                        </text>
+                        <text x="120" y="690" font-family="monospace" font-size="9" fill="white">
+                            • Relatórios TCU
+                        </text>
+                        <text x="120" y="705" font-family="monospace" font-size="9" fill="white">
+                            • Direct Query
+                        </text>
+                    </g>
+
+                    <g filter="url(#shadow)">
+                        <rect x="340" y="620" width="200" height="100" rx="10" fill="url(#biGrad)" stroke="#764ba2"
+                            stroke-width="2" />
+                        <text x="440" y="650" font-family="Arial, sans-serif" font-size="14" font-weight="bold"
+                            text-anchor="middle" fill="white">📈 Tableau</text>
+                        <text x="360" y="675" font-family="monospace" font-size="9" fill="white">
+                            • Análises Ad-hoc
+                        </text>
+                        <text x="360" y="690" font-family="monospace" font-size="9" fill="white">
+                            • Dashboards Interativos
+                        </text>
+                        <text x="360" y="705" font-family="monospace" font-size="9" fill="white">
+                            • Live Connection
+                        </text>
+                    </g>
+
+                    <g filter="url(#shadow)">
+                        <rect x="600" y="620" width="200" height="100" rx="10" fill="url(#biGrad)" stroke="#764ba2"
+                            stroke-width="2" />
+                        <text x="700" y="650" font-family="Arial, sans-serif" font-size="14" font-weight="bold"
+                            text-anchor="middle" fill="white">🤖 APIs REST</text>
+                        <text x="620" y="675" font-family="monospace" font-size="9" fill="white">
+                            • Integração externa
+                        </text>
+                        <text x="620" y="690" font-family="monospace" font-size="9" fill="white">
+                            • Portal do Artista
+                        </text>
+                        <text x="620" y="705" font-family="monospace" font-size="9" fill="white">
+                            • JSON responses
+                        </text>
+                    </g>
+
+                    <g filter="url(#shadow)">
+                        <rect x="860" y="620" width="200" height="100" rx="10" fill="url(#biGrad)" stroke="#764ba2"
+                            stroke-width="2" />
+                        <text x="960" y="650" font-family="Arial, sans-serif" font-size="14" font-weight="bold"
+                            text-anchor="middle" fill="white">🔎 SQL Queries</text>
+                        <text x="880" y="675" font-family="monospace" font-size="9" fill="white">
+                            • Jupyter Notebooks
+                        </text>
+                        <text x="880" y="690" font-family="monospace" font-size="9" fill="white">
+                            • Data Science
+                        </text>
+                        <text x="880" y="705" font-family="monospace" font-size="9" fill="white">
+                            • Spark SQL
+                        </text>
+                    </g>
+
+                    <g filter="url(#shadow)">
+                        <rect x="1100" y="620" width="200" height="100" rx="10" fill="url(#biGrad)" stroke="#764ba2"
+                            stroke-width="2" />
+                        <text x="1200" y="650" font-family="Arial, sans-serif" font-size="14" font-weight="bold"
+                            text-anchor="middle" fill="white">📧 Relatórios</text>
+                        <text x="1120" y="675" font-family="monospace" font-size="9" fill="white">
+                            • Email diário
+                        </text>
+                        <text x="1120" y="690" font-family="monospace" font-size="9" fill="white">
+                            • PDF/Excel export
+                        </text>
+                        <text x="1120" y="705" font-family="monospace" font-size="9" fill="white">
+                            • Agendamento
+                        </text>
+                    </g>
+
+                    <!-- Características GOLD -->
+                    <rect x="50" y="780" width="1300" height="420" rx="10" fill="#ECF0F1" stroke="#95A5A6"
+                        stroke-width="2" />
+                    <text x="700" y="815" font-family="Arial, sans-serif" font-size="18" font-weight="bold"
+                        text-anchor="middle" fill="#2C3E50">Características da Camada GOLD</text>
+
+                    <circle cx="100" cy="870" r="30" fill="#FFD700" />
+                    <text x="100" y="880" font-family="Arial, sans-serif" font-size="24" text-anchor="middle"
+                        fill="#333" font-weight="bold">1</text>
+                    <text x="150" y="860" font-family="Arial, sans-serif" font-size="13" font-weight="bold"
+                        fill="#2C3E50">Modelagem Dimensional</text>
+                    <text x="150" y="880" font-family="Arial, sans-serif" font-size="11" fill="#7F8C8D">
+                        Star Schema para queries rápidas
+                    </text>
+                    <text x="150" y="895" font-family="Arial, sans-serif" font-size="11" fill="#7F8C8D">
+                        Dimensões + Fatos = BI otimizado
+                    </text>
+
+                    <circle cx="520" cy="870" r="30" fill="#3498DB" />
+                    <text x="520" y="880" font-family="Arial, sans-serif" font-size="24" text-anchor="middle"
+                        fill="white" font-weight="bold">2</text>
+                    <text x="570" y="860" font-family="Arial, sans-serif" font-size="13" font-weight="bold"
+                        fill="#2C3E50">Agregações Pré-computadas</text>
+                    <text x="570" y="880" font-family="Arial, sans-serif" font-size="11" fill="#7F8C8D">
+                        SUM, AVG, COUNT já calculados
+                    </text>
+                    <text x="570" y="895" font-family="Arial, sans-serif" font-size="11" fill="#7F8C8D">
+                        Dashboards em milissegundos
+                    </text>
+
+                    <circle cx="1000" cy="870" r="30" fill="#27AE60" />
+                    <text x="1000" y="880" font-family="Arial, sans-serif" font-size="24" text-anchor="middle"
+                        fill="white" font-weight="bold">3</text>
+                    <text x="1050" y="860" font-family="Arial, sans-serif" font-size="13" font-weight="bold"
+                        fill="#2C3E50">Business-Friendly</text>
+                    <text x="1050" y="880" font-family="Arial, sans-serif" font-size="11" fill="#7F8C8D">
+                        Nomenclatura clara: "Total_Inscricoes"
+                    </text>
+                    <text x="1050" y="895" font-family="Arial, sans-serif" font-size="11" fill="#7F8C8D">
+                        Sem jargão técnico nos marts
+                    </text>
+
+                    <circle cx="100" cy="970" r="30" fill="#9B59B6" />
+                    <text x="100" y="980" font-family="Arial, sans-serif" font-size="24" text-anchor="middle"
+                        fill="white" font-weight="bold">4</text>
+                    <text x="150" y="960" font-family="Arial, sans-serif" font-size="13" font-weight="bold"
+                        fill="#2C3E50">SCD Type 2 em Dimensões</text>
+                    <text x="150" y="980" font-family="Arial, sans-serif" font-size="11" fill="#7F8C8D">
+                        Rastreia mudanças: "Em 2023, valor era X"
+                    </text>
+                    <text x="150" y="995" font-family="Arial, sans-serif" font-size="11" fill="#7F8C8D">
+                        Análises históricas precisas
+                    </text>
+
+                    <circle cx="520" cy="970" r="30" fill="#F39C12" />
+                    <text x="520" y="980" font-family="Arial, sans-serif" font-size="24" text-anchor="middle"
+                        fill="white" font-weight="bold">5</text>
+                    <text x="570" y="960" font-family="Arial, sans-serif" font-size="13" font-weight="bold"
+                        fill="#2C3E50">Incremental Refresh</text>
+                    <text x="570" y="980" font-family="Arial, sans-serif" font-size="11" fill="#7F8C8D">
+                        Atualização apenas de deltas
+                    </text>
+                    <text x="570" y="995" font-family="Arial, sans-serif" font-size="11" fill="#7F8C8D">
+                        Pipeline eficiente com dbt
+                    </text>
+
+                    <circle cx="1000" cy="970" r="30" fill="#E74C3C" />
+                    <text x="1000" y="980" font-family="Arial, sans-serif" font-size="24" text-anchor="middle"
+                        fill="white" font-weight="bold">6</text>
+                    <text x="1050" y="960" font-family="Arial, sans-serif" font-size="13" font-weight="bold"
+                        fill="#2C3E50">Documentação Automática</text>
+                    <text x="1050" y="980" font-family="Arial, sans-serif" font-size="11" fill="#7F8C8D">
+                        dbt docs: catálogo de dados
+                    </text>
+                    <text x="1050" y="995" font-family="Arial, sans-serif" font-size="11" fill="#7F8C8D">
+                        Linhagem visual end-to-end
+                    </text>
+
+                    <circle cx="100" cy="1070" r="30" fill="#16A085" />
+                    <text x="100" y="1080" font-family="Arial, sans-serif" font-size="24" text-anchor="middle"
+                        fill="white" font-weight="bold">7</text>
+                    <text x="150" y="1060" font-family="Arial, sans-serif" font-size="13" font-weight="bold"
+                        fill="#2C3E50">Particionamento Inteligente</text>
+                    <text x="150" y="1080" font-family="Arial, sans-serif" font-size="11" fill="#7F8C8D">
+                        Por ano/mês para queries otimizadas
+                    </text>
+                    <text x="150" y="1095" font-family="Arial, sans-serif" font-size="11" fill="#7F8C8D">
+                        Pruning automático no Spark
+                    </text>
+
+                    <circle cx="520" cy="1070" r="30" fill="#D35400" />
+                    <text x="520" y="1080" font-family="Arial, sans-serif" font-size="24" text-anchor="middle"
+                        fill="white" font-weight="bold">8</text>
+                    <text x="570" y="1060" font-family="Arial, sans-serif" font-size="13" font-weight="bold"
+                        fill="#2C3E50">Particionamento Inteligente</text>
+                    <text x="570" y="1080" font-family="Arial, sans-serif" font-size="11" fill="#7F8C8D">
+                        Por ano/mês para queries otimizadas
+                    </text>
+                    <text x="570" y="1095" font-family="Arial, sans-serif" font-size="11" fill="#7F8C8D">
+                        Pruning automático no Spark
+                    </text>
+                    <circle cx="1000" cy="1070" r="30" fill="#8E44AD" />
+                    <text x="1000" y="1080" font-family="Arial, sans-serif" font-size="24" text-anchor="middle"
+                        fill="white" font-weight="bold">9</text>
+                    <text x="1050" y="1060" font-family="Arial, sans-serif" font-size="13" font-weight="bold"
+                        fill="#2C3E50">Cache Otimizado</text>
+                    <text x="1050" y="1080" font-family="Arial, sans-serif" font-size="11" fill="#7F8C8D">
+                        Resultados em memória
+                    </text>
+                    <text x="1050" y="1095" font-family="Arial, sans-serif" font-size="11" fill="#7F8C8D">
+                        Resposta instantânea
+                    </text>
+
+                    <text x="700" y="1180" font-family="Arial, sans-serif" font-size="12" text-anchor="middle"
+                        fill="#34495E" font-style="italic">
+                        "GOLD = Dados prontos para decisão • Agregados • Otimizados • Business-Friendly"
+                    </text>
+                </svg>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.querySelectorAll('.nav-link').forEach(link => {
+            link.addEventListener('click', (e) => {
+                e.preventDefault();
+                const layer = link.getAttribute('href').substring(1);
+
+                // Mapeia os links para os arquivos HTML corretos
+                const pageMap = {
+                    'raw': 'raw.html',
+                    'bronze': 'bronze.html',
+                    'silver': 'datavault.html',
+                    'gold': 'gold.html'
+                };
+
+                // Navega para a página correspondente
+                if (pageMap[layer]) {
+                    window.location.href = pageMap[layer];
+                }
+            });
+        });
+    </script>
+</body>
+
+</html>
