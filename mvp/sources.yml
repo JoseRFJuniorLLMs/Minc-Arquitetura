@@ -1,0 +1,14 @@
+version: 2
+
+sources:
+  - name: silver
+    schema: delta
+    tables:
+      - name: hub_projeto
+      - name: sat_projeto 
+      - name: hub_sprint
+      - name: sat_sprint
+      - name: hub_tarefa
+      - name: sat_tarefa
+      - name: hub_usuario
+      - name: sat_usuario

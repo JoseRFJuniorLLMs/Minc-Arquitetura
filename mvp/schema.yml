@@ -1,0 +1,12 @@
+version: 2
+
+models:
+  - name: dim_projetos_culturais
+    columns:
+      - name: codigo_pronac
+        tests:
+          - not_null
+          - unique
+      - name: valor_projeto
+        tests:
+          - accepted_values: { values: [0], quote: false, operator: '>=' } # Garante que não há valor negativo
