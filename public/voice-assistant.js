@@ -11,14 +11,14 @@ import { LitElement, css, html } from 'lit';
    SHIM process (browser)
 ======================= */
 if (typeof window !== 'undefined') {
-  (window as any).process = (window as any).process || {};
-  (window as any).process.env = (window as any).process.env || {};
+  window.process = window.process || {};
+  window.process.env = window.process.env || {};
 }
 
 /* =======================
    UTILS
 ======================= */
-function encode(bytes: Uint8Array) {
+function encode(bytes) {
   let binary = '';
   for (let i = 0; i < bytes.byteLength; i++) {
     binary += String.fromCharCode(bytes[i]);
@@ -26,7 +26,7 @@ function encode(bytes: Uint8Array) {
   return btoa(binary);
 }
 
-function decode(base64: string) {
+function decode(base64) {
   const binaryString = atob(base64);
   const len = binaryString.length;
   const bytes = new Uint8Array(len);
@@ -36,7 +36,7 @@ function decode(base64: string) {
   return bytes;
 }
 
-function downsample(buffer: Float32Array, inRate: number, outRate: number) {
+function downsample(buffer, inRate, outRate) {
   if (inRate === outRate) return buffer;
   const ratio = inRate / outRate;
   const newLength = Math.round(buffer.length / ratio);
@@ -49,7 +49,7 @@ function downsample(buffer: Float32Array, inRate: number, outRate: number) {
   return result;
 }
 
-function createBlob(data: Float32Array) {
+function createBlob(data) {
   const int16 = new Int16Array(data.length);
   for (let i = 0; i < data.length; i++) {
     int16[i] = Math.max(-1, Math.min(1, data[i])) * 32767;
@@ -60,12 +60,7 @@ function createBlob(data: Float32Array) {
   };
 }
 
-async function decodeAudioData(
-  data: Uint8Array,
-  ctx: AudioContext,
-  sampleRate: number,
-  numChannels: number
-) {
+async function decodeAudioData(data, ctx, sampleRate, numChannels) {
   const buffer = ctx.createBuffer(
     numChannels,
     data.length / 2 / numChannels,
@@ -87,12 +82,11 @@ async function decodeAudioData(
 ======================= */
 class GdmLiveAudio extends LitElement {
   static properties = {
-    isActive: { type: Boolean, state: true },
-    isReady: { type: Boolean, state: true },
+    isActive: { type: Boolean },
+    isReady: { type: Boolean },
   };
 
   static styles = css`
-    /* CSS ORIGINAL — NÃO TOCADO */
     :host {
       position: fixed;
       bottom: 2rem;
@@ -135,115 +129,161 @@ class GdmLiveAudio extends LitElement {
   constructor() {
     super();
     this.isActive = false;
+    this.isReady = false;
 
-    // ⚠️ NÃO dependa de onopen (CSP impede)
-    this.isReady = true;
+    this.inputAudioContext = new AudioContext({ sampleRate: 16000 });
+    this.outputAudioContext = new AudioContext({ sampleRate: 24000 });
 
-    this.audioContext = new AudioContext({ sampleRate: 48000 });
-
-    this.outputNode = this.audioContext.createGain();
-    this.outputNode.connect(this.audioContext.destination);
+    this.outputNode = this.outputAudioContext.createGain();
+    this.outputNode.connect(this.outputAudioContext.destination);
 
     this.mediaStream = null;
     this.sourceNode = null;
     this.scriptProcessorNode = null;
-
     this.nextStartTime = 0;
+    this.sources = new Set();
 
-    this.initClient();
+    this.sofiaPrompt = '';
+    this.loadSofiaPrompt();
+  }
+
+  async loadSofiaPrompt() {
+    try {
+      const response = await fetch('sofia.txt');
+      this.sofiaPrompt = await response.text();
+      this.isReady = true;
+      this.initClient();
+    } catch (e) {
+      console.error('Erro ao carregar sofia.txt:', e);
+      this.sofiaPrompt = 'Você é a Sofia, assistente de arquitetura de dados do MinC.';
+      this.isReady = true;
+      this.initClient();
+    }
   }
 
   async initClient() {
     this.client = new GoogleGenAI({
-      apiKey: 'AIzaSyAbK8Cs1I_XNebSr-04hrygdQNjvew4BUc',
+      apiKey: '',
     });
 
     try {
       await this.initSession();
     } catch (e) {
-      console.error('Gemini Live bloqueado por CSP:', e);
+      console.error('Erro na sessão:', e);
     }
   }
 
   async initSession() {
     this.session = await this.client.live.connect({
-      model: 'gemini-2.0-flash-exp',
+      model: 'gemini-2.5-flash-native-audio-preview-12-2025',
       callbacks: {
+        onopen: () => {
+          console.log('Sessão Sofia aberta');
+        },
         onmessage: async (message) => {
-          const audio =
-            message.serverContent?.modelTurn?.parts?.[0]?.inlineData;
+          const audio = message.serverContent?.modelTurn?.parts?.[0]?.inlineData;
           if (!audio) return;
 
           this.nextStartTime = Math.max(
             this.nextStartTime,
-            this.audioContext.currentTime
+            this.outputAudioContext.currentTime
           );
 
           const audioBuffer = await decodeAudioData(
             decode(audio.data),
-            this.audioContext,
+            this.outputAudioContext,
             24000,
             1
           );
 
-          const source = this.audioContext.createBufferSource();
+          const source = this.outputAudioContext.createBufferSource();
           source.buffer = audioBuffer;
           source.connect(this.outputNode);
+
+          source.addEventListener('ended', () => {
+            this.sources.delete(source);
+          });
+
           source.start(this.nextStartTime);
           this.nextStartTime += audioBuffer.duration;
+          this.sources.add(source);
+        },
+        onerror: (e) => {
+          console.error('Erro:', e);
+        },
+        onclose: (e) => {
+          console.log('Sessão fechada:', e.reason);
         },
       },
       config: {
         responseModalities: [Modality.AUDIO],
         systemInstruction: {
-          parts: [{ text: 'Você é o assistente SNIIC. Responda em Português.' }],
+          parts: [{
+            text: this.sofiaPrompt
+          }]
         },
         speechConfig: {
           voiceConfig: {
-            prebuiltVoiceConfig: { voiceName: 'Aoede' },
+            prebuiltVoiceConfig: { voiceName: 'Aoede' }
           },
           languageCode: 'pt-BR',
         },
       },
     });
+
+    this.session.on('interrupted', () => {
+      for (const source of this.sources.values()) {
+        source.stop();
+        this.sources.delete(source);
+      }
+      this.nextStartTime = 0;
+    });
   }
 
   async startConversation() {
-    await this.audioContext.resume();
+    await this.inputAudioContext.resume();
+    await this.outputAudioContext.resume();
 
     this.mediaStream = await navigator.mediaDevices.getUserMedia({ audio: true });
-    this.sourceNode =
-      this.audioContext.createMediaStreamSource(this.mediaStream);
+    this.sourceNode = this.inputAudioContext.createMediaStreamSource(this.mediaStream);
 
-    this.scriptProcessorNode =
-      this.audioContext.createScriptProcessor(2048, 1, 1);
+    this.scriptProcessorNode = this.inputAudioContext.createScriptProcessor(256, 1, 1);
 
     this.scriptProcessorNode.onaudioprocess = (e) => {
       if (!this.isActive || !this.session) return;
 
       const pcm = e.inputBuffer.getChannelData(0);
-      const resampled = downsample(
-        pcm,
-        this.audioContext.sampleRate,
-        16000
-      );
 
       this.session.sendRealtimeInput({
-        media: createBlob(resampled),
+        media: createBlob(pcm),
       });
     };
 
     this.sourceNode.connect(this.scriptProcessorNode);
-    this.scriptProcessorNode.connect(this.audioContext.destination);
+    this.scriptProcessorNode.connect(this.inputAudioContext.destination);
 
     this.isActive = true;
   }
 
   stopConversation() {
     this.isActive = false;
-    this.mediaStream?.getTracks().forEach((t) => t.stop());
-    this.scriptProcessorNode?.disconnect();
-    this.sourceNode?.disconnect();
+
+    if (this.mediaStream) {
+      this.mediaStream.getTracks().forEach((t) => t.stop());
+    }
+
+    if (this.scriptProcessorNode) {
+      this.scriptProcessorNode.disconnect();
+    }
+
+    if (this.sourceNode) {
+      this.sourceNode.disconnect();
+    }
+
+    for (const source of this.sources.values()) {
+      source.stop();
+      this.sources.delete(source);
+    }
   }
 
   async handleClick() {
@@ -260,12 +300,8 @@ class GdmLiveAudio extends LitElement {
         @click=${this.handleClick}
       >
         <svg viewBox="0 0 24 24">
-          <path
-            d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3z"
-          />
-          <path
-            d="M17 11c0 2.76-2.24 5-5 5s-5-2.24-5-5H5c0 3.53 2.61 6.43 6 6.92V21h2v-3.08c3.39-.49 6-3.39 6-6.92h-2z"
-          />
+          <path d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3z" />
+          <path d="M17 11c0 2.76-2.24 5-5 5s-5-2.24-5-5H5c0 3.53 2.61 6.43 6 6.92V21h2v-3.08c3.39-.49 6-3.39 6-6.92h-2z" />
         </svg>
       </button>
     `;
