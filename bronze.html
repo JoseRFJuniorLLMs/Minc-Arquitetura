@@ -201,7 +201,8 @@
             </div>
 
             <div class="diagram-container">
-                <svg viewBox="0 0 1400 1250" xmlns="http://www.w3.org/2000/svg">
+                <svg viewBox="0 0 1400 1100" xmlns="http://www.w3.org/2000/svg">
+                    <!-- Altura perfeita: sem espaço branco extra -->
                     <defs>
                         <linearGradient id="bronzeGrad" x1="0%" y1="0%" x2="0%" y2="100%">
                             <stop offset="0%" style="stop-color:#CD7F32;stop-opacity:1" />
@@ -307,84 +308,93 @@
                             modelagem Silver</text>
                     </g>
 
-                    <!-- Exemplo CPF -->
-                    <rect x="100" y="400" width="1200" height="120" rx="10" fill="#ECF0F1" stroke="#95A5A6"
+                    <!-- Exemplo CPF - já está bom -->
+                    <rect x="100" y="480" width="1200" height="100" rx="10" fill="#ECF0F1" stroke="#95A5A6"
                         stroke-width="2" />
-                    <text x="700" y="440" font-family="Arial, sans-serif" font-size="16" font-weight="bold"
-                        text-anchor="middle" fill="#2C3E50">📝 Exemplo Prático: Padronização de CPF</text>
-                    <text x="300" y="480" font-family="monospace" font-size="12" fill="#E74C3C">RAW → "123.456.789-00" |
-                        "12345678900" | " 123 456 789 00 "</text>
-                    <text x="1000" y="480" font-family="monospace" font-size="12" fill="#27AE60">BRONZE →
-                        "12345678900"</text>
+                    <text x="700" y="520" font-family="Arial, sans-serif" font-size="16" font-weight="bold"
+                        text-anchor="middle" fill="#2C3E50">
+                        📝 Exemplo Prático: Padronização de CPF
+                    </text>
+                    <text x="300" y="560" font-family="monospace" font-size="12" fill="#E74C3C">
+                        RAW → "123.456.789-00" | "12345678900" | " 123 456 789 00 "
+                    </text>
+                    <text x="1000" y="560" font-family="monospace" font-size="12" fill="#27AE60">
+                        BRONZE → "12345678900"
+                    </text>
 
-                    <!-- Métricas -->
-                    <rect x="100" y="550" width="1200" height="400" rx="10" fill="#ECF0F1" stroke="#95A5A6"
+                    <!-- NOVO: Container de fundo para as Métricas (igual ao do CPF) -->
+                    <rect x="100" y="620" width="1200" height="360" rx="10" fill="#ECF0F1" stroke="#95A5A6"
                         stroke-width="2" />
-                    <text x="700" y="590" font-family="Arial, sans-serif" font-size="18" font-weight="bold"
-                        text-anchor="middle" fill="#2C3E50">📊 Métricas de Qualidade na Camada BRONZE</text>
 
-                    <!-- Métricas em círculos (como nos outros arquivos) -->
-                    <circle cx="200" cy="670" r="35" fill="#CD7F32" />
-                    <text x="200" y="685" font-family="Arial, sans-serif" font-size="28" text-anchor="middle"
+                    <!-- Título das Métricas -->
+                    <text x="700" y="660" font-family="Arial, sans-serif" font-size="18" font-weight="bold"
+                        text-anchor="middle" fill="#2C3E50">
+                        📊 Métricas de Qualidade na Camada BRONZE
+                    </text>
+
+                    <!-- Os 6 círculos e textos (mantém as mesmas coordenadas) -->
+                    <circle cx="200" cy="740" r="35" fill="#CD7F32" />
+                    <text x="200" y="755" font-family="Arial, sans-serif" font-size="28" text-anchor="middle"
                         fill="white" font-weight="bold">1</text>
-                    <text x="280" y="650" font-family="Arial, sans-serif" font-size="14" font-weight="bold"
+                    <text x="280" y="720" font-family="Arial, sans-serif" font-size="14" font-weight="bold"
                         fill="#2C3E50">Validação de Schema</text>
-                    <text x="280" y="680" font-family="Arial, sans-serif" font-size="12" fill="#7F8C8D">100% colunas
+                    <text x="280" y="750" font-family="Arial, sans-serif" font-size="12" fill="#7F8C8D">100% colunas
                         tipadas corretamente</text>
-                    <text x="280" y="700" font-family="Arial, sans-serif" font-size="12" fill="#7F8C8D">Zero mismatches
+                    <text x="280" y="770" font-family="Arial, sans-serif" font-size="12" fill="#7F8C8D">Zero mismatches
                         detectados</text>
 
-                    <circle cx="600" cy="670" r="35" fill="#3498DB" />
-                    <text x="600" y="685" font-family="Arial, sans-serif" font-size="28" text-anchor="middle"
+                    <circle cx="600" cy="740" r="35" fill="#3498DB" />
+                    <text x="600" y="755" font-family="Arial, sans-serif" font-size="28" text-anchor="middle"
                         fill="white" font-weight="bold">2</text>
-                    <text x="680" y="650" font-family="Arial, sans-serif" font-size="14" font-weight="bold"
+                    <text x="680" y="720" font-family="Arial, sans-serif" font-size="14" font-weight="bold"
                         fill="#2C3E50">Deduplicação</text>
-                    <text x="680" y="680" font-family="Arial, sans-serif" font-size="12" fill="#7F8C8D">~3-5% de
+                    <text x="680" y="750" font-family="Arial, sans-serif" font-size="12" fill="#7F8C8D">~3-5% de
                         duplicatas removidas</text>
-                    <text x="680" y="700" font-family="Arial, sans-serif" font-size="12" fill="#7F8C8D">Baseado em
+                    <text x="680" y="770" font-family="Arial, sans-serif" font-size="12" fill="#7F8C8D">Baseado em
                         business keys (CPF, etc.)</text>
 
-                    <circle cx="1000" cy="670" r="35" fill="#27AE60" />
-                    <text x="1000" y="685" font-family="Arial, sans-serif" font-size="28" text-anchor="middle"
+                    <circle cx="1000" cy="740" r="35" fill="#27AE60" />
+                    <text x="1000" y="755" font-family="Arial, sans-serif" font-size="28" text-anchor="middle"
                         fill="white" font-weight="bold">3</text>
-                    <text x="1080" y="650" font-family="Arial, sans-serif" font-size="14" font-weight="bold"
+                    <text x="1080" y="720" font-family="Arial, sans-serif" font-size="14" font-weight="bold"
                         fill="#2C3E50">Taxa de Aprovação</text>
-                    <text x="1080" y="680" font-family="Arial, sans-serif" font-size="12" fill="#7F8C8D">98.5% registros
+                    <text x="1080" y="750" font-family="Arial, sans-serif" font-size="12" fill="#7F8C8D">98.5% registros
                         válidos</text>
-                    <text x="1080" y="700" font-family="Arial, sans-serif" font-size="12" fill="#7F8C8D">1.5% em
+                    <text x="1080" y="770" font-family="Arial, sans-serif" font-size="12" fill="#7F8C8D">1.5% em
                         quarentena para análise</text>
 
-                    <circle cx="200" cy="820" r="35" fill="#9B59B6" />
-                    <text x="200" y="835" font-family="Arial, sans-serif" font-size="28" text-anchor="middle"
+                    <circle cx="200" cy="890" r="35" fill="#9B59B6" />
+                    <text x="200" y="905" font-family="Arial, sans-serif" font-size="28" text-anchor="middle"
                         fill="white" font-weight="bold">4</text>
-                    <text x="280" y="800" font-family="Arial, sans-serif" font-size="14" font-weight="bold"
+                    <text x="280" y="870" font-family="Arial, sans-serif" font-size="14" font-weight="bold"
                         fill="#2C3E50">Padronização</text>
-                    <text x="280" y="830" font-family="Arial, sans-serif" font-size="12" fill="#7F8C8D">CPF/CNPJ →
+                    <text x="280" y="900" font-family="Arial, sans-serif" font-size="12" fill="#7F8C8D">CPF/CNPJ →
                         apenas dígitos</text>
-                    <text x="280" y="850" font-family="Arial, sans-serif" font-size="12" fill="#7F8C8D">Datas → ISO
+                    <text x="280" y="920" font-family="Arial, sans-serif" font-size="12" fill="#7F8C8D">Datas → ISO
                         8601</text>
 
-                    <circle cx="600" cy="820" r="35" fill="#F39C12" />
-                    <text x="600" y="835" font-family="Arial, sans-serif" font-size="28" text-anchor="middle"
+                    <circle cx="600" cy="890" r="35" fill="#F39C12" />
+                    <text x="600" y="905" font-family="Arial, sans-serif" font-size="28" text-anchor="middle"
                         fill="white" font-weight="bold">5</text>
-                    <text x="680" y="800" font-family="Arial, sans-serif" font-size="14" font-weight="bold"
+                    <text x="680" y="870" font-family="Arial, sans-serif" font-size="14" font-weight="bold"
                         fill="#2C3E50">Performance</text>
-                    <text x="680" y="830" font-family="Arial, sans-serif" font-size="12" fill="#7F8C8D">Pipeline médio:
+                    <text x="680" y="900" font-family="Arial, sans-serif" font-size="12" fill="#7F8C8D">Pipeline médio:
                         10-15 min</text>
-                    <text x="680" y="850" font-family="Arial, sans-serif" font-size="12" fill="#7F8C8D">Até 5M
+                    <text x="680" y="920" font-family="Arial, sans-serif" font-size="12" fill="#7F8C8D">Até 5M
                         registros/hora</text>
 
-                    <circle cx="1000" cy="820" r="35" fill="#E74C3C" />
-                    <text x="1000" y="835" font-family="Arial, sans-serif" font-size="28" text-anchor="middle"
+                    <circle cx="1000" cy="890" r="35" fill="#E74C3C" />
+                    <text x="1000" y="905" font-family="Arial, sans-serif" font-size="28" text-anchor="middle"
                         fill="white" font-weight="bold">6</text>
-                    <text x="1080" y="800" font-family="Arial, sans-serif" font-size="14" font-weight="bold"
+                    <text x="1080" y="870" font-family="Arial, sans-serif" font-size="14" font-weight="bold"
                         fill="#2C3E50">Quarentena</text>
-                    <text x="1080" y="830" font-family="Arial, sans-serif" font-size="12" fill="#7F8C8D">Registros
+                    <text x="1080" y="900" font-family="Arial, sans-serif" font-size="12" fill="#7F8C8D">Registros
                         rejeitados salvos</text>
-                    <text x="1080" y="850" font-family="Arial, sans-serif" font-size="12" fill="#7F8C8D">Para correção
+                    <text x="1080" y="920" font-family="Arial, sans-serif" font-size="12" fill="#7F8C8D">Para correção
                         manual ou alerta</text>
 
-                    <text x="700" y="920" font-family="Arial, sans-serif" font-size="14" text-anchor="middle"
+                    <!-- Frase final -->
+                    <text x="700" y="1050" font-family="Arial, sans-serif" font-size="14" text-anchor="middle"
                         fill="#34495E" font-style="italic">
                         "BRONZE transforma dados brutos em confiáveis — base sólida para o Data Vault na camada Silver"
                     </text>
