@@ -1020,3 +1020,457 @@
 </body>
 
 </html>
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Arquitetura Data Lakehouse - MinC</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 2rem 0;
+        }
+
+        /* --- BOTÃO GITHUB --- */
+        .github-corner {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 2000;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            padding: 10px 18px;
+            border-radius: 50px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: white;
+            font-weight: 600;
+            font-size: 0.9rem;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .github-corner:hover {
+            background: white;
+            color: #764ba2;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+        }
+
+        .github-corner svg {
+            fill: currentColor;
+        }
+
+        /* ------------------- */
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 1rem;
+        }
+
+        .header {
+            text-align: center;
+            color: white;
+            margin-bottom: 3rem;
+        }
+
+        .header h1 {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        .header p {
+            font-size: 1.2rem;
+            opacity: 0.95;
+        }
+
+        .architecture-card {
+            background: white;
+            border-radius: 16px;
+            padding: 2rem;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+            margin-bottom: 2rem;
+        }
+
+        .diagram-container {
+            width: 100%;
+            overflow-x: auto;
+            margin: 2rem 0;
+        }
+
+        .layers-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+            margin-top: 2rem;
+        }
+
+        .layer-card {
+            background: white;
+            border-radius: 12px;
+            padding: 1.5rem;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 3px solid transparent;
+        }
+
+        .layer-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+        }
+
+        .layer-card.raw {
+            border-color: #e53e3e;
+        }
+
+        .layer-card.raw:hover {
+            background: linear-gradient(135deg, #e53e3e10 0%, #c5303010 100%);
+        }
+
+        .layer-card.bronze {
+            border-color: #cd7f32;
+        }
+
+        .layer-card.bronze:hover {
+            background: linear-gradient(135deg, #cd7f3210 0%, #a0522d10 100%);
+        }
+
+        .layer-card.silver {
+            border-color: #c0c0c0;
+        }
+
+        .layer-card.silver:hover {
+            background: linear-gradient(135deg, #c0c0c010 0%, #a9a9a910 100%);
+        }
+
+        .layer-card.gold {
+            border-color: #ffd700;
+        }
+
+        .layer-card.gold:hover {
+            background: linear-gradient(135deg, #ffd70010 0%, #ffa50010 100%);
+        }
+
+        .layer-badge {
+            display: inline-block;
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: bold;
+            margin-bottom: 1rem;
+        }
+
+        .badge-raw {
+            background: #e53e3e;
+            color: white;
+        }
+
+        .badge-bronze {
+            background: #cd7f32;
+            color: white;
+        }
+
+        .badge-silver {
+            background: #c0c0c0;
+            color: #333;
+        }
+
+        .badge-gold {
+            background: #ffd700;
+            color: #333;
+        }
+
+        .layer-card h3 {
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+            color: #2c3e50;
+        }
+
+        .layer-card ul {
+            list-style: none;
+            margin: 1rem 0;
+        }
+
+        .layer-card ul li {
+            padding: 0.5rem 0;
+            color: #7f8c8d;
+            font-size: 0.95rem;
+        }
+
+        .layer-card ul li::before {
+            content: "→ ";
+            color: #667eea;
+            font-weight: bold;
+            margin-right: 0.5rem;
+        }
+
+        .cta-button {
+            display: inline-block;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            margin-top: 1rem;
+        }
+
+        .cta-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+        }
+
+        svg {
+            max-width: 100%;
+            height: auto;
+        }
+
+        svg a {
+            cursor: pointer;
+        }
+
+        svg a rect {
+            transition: all 0.3s ease;
+        }
+
+        svg a:hover rect {
+            filter: brightness(1.15) drop-shadow(0px 4px 8px rgba(0, 0, 0, 0.4));
+            stroke-width: 4;
+        }
+
+        .tech-stack {
+            background: #f8f9fa;
+            border-radius: 12px;
+            padding: 2rem;
+            margin-top: 2rem;
+        }
+
+        .tech-stack h3 {
+            color: #2c3e50;
+            margin-bottom: 1.5rem;
+            text-align: center;
+        }
+
+        .tech-items {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+            justify-content: center;
+        }
+
+        .tech-item {
+            background: white;
+            padding: 0.75rem 1.5rem;
+            border-radius: 20px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            font-weight: 600;
+            color: #667eea;
+        }
+
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 2rem;
+            }
+
+            .layers-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .github-corner span {
+                display: none;
+            }
+
+            /* Esconde texto no mobile */
+        }
+    </style>
+
+    <script type="importmap">
+    {
+      "imports": {
+        "@google/genai": "https://esm.run/@google/genai",
+        "lit": "https://cdn.jsdelivr.net/npm/lit@3/+esm"
+      }
+    }
+    </script>
+</head>
+
+<body>
+    <a href="https://github.com/JoseRFJuniorLLMs/Minc-Arquitetura" target="_blank" class="github-corner"
+        title="Ver Código no GitHub">
+        <svg height="24" width="24" viewBox="0 0 16 16">
+            <path
+                d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z">
+            </path>
+        </svg>
+        <span>Ver no GitHub</span>
+    </a>
+
+    <div class="container">
+        <div class="header">
+            <h1>🏛️ Sovereign Data Lakehouse - SNIIC</h1>
+            <p>Arquitetura Completa de Dados com Medallion Architecture</p>
+        </div>
+
+        <div class="architecture-card">
+            <h2 style="text-align: center; color: #2c3e50; margin-bottom: 2rem;">📊 Visão Geral da Arquitetura</h2>
+
+            <div class="diagram-container">
+                <svg viewBox="0 0 1200 800" xmlns="http://www.w3.org/2000/svg">
+                    <defs>
+                        <linearGradient id="rawGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+                            <stop offset="0%" style="stop-color:#E53E3E;stop-opacity:1" />
+                            <stop offset="100%" style="stop-color:#C53030;stop-opacity:1" />
+                        </linearGradient>
+                        <linearGradient id="bronzeGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+                            <stop offset="0%" style="stop-color:#CD7F32;stop-opacity:1" />
+                            <stop offset="100%" style="stop-color:#A0522D;stop-opacity:1" />
+                        </linearGradient>
+                        <linearGradient id="silverGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+                            <stop offset="0%" style="stop-color:#C0C0C0;stop-opacity:1" />
+                            <stop offset="100%" style="stop-color:#A9A9A9;stop-opacity:1" />
+                        </linearGradient>
+                        <linearGradient id="goldGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+                            <stop offset="0%" style="stop-color:#FFD700;stop-opacity:1" />
+                            <stop offset="100%" style="stop-color:#FFA500;stop-opacity:1" />
+                        </linearGradient>
+                        <filter id="shadow">
+                            <feDropShadow dx="2" dy="2" stdDeviation="4" flood-opacity="0.3" />
+                        </filter>
+                        <marker id="arrow" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto">
+                            <path d="M0,0 L0,6 L9,3 z" fill="#667eea" />
+                        </marker>
+                    </defs>
+
+                    <text x="600" y="40" font-family="Arial" font-size="20" font-weight="bold" text-anchor="middle"
+                        fill="#2C3E50">
+                        🔄 Fluxo de Dados - Medallion Architecture
+                    </text>
+
+                    <a href="fontes.html">
+                        <g filter="url(#shadow)">
+                            <rect x="50" y="80" width="180" height="100" rx="8" fill="#805AD5" stroke="#6B46C1"
+                                stroke-width="3" />
+                            <text x="140" y="110" font-family="Arial" font-size="14" font-weight="bold"
+                                text-anchor="middle" fill="white">📊 Fontes de Dados</text>
+                            <text x="60" y="135" font-family="monospace" font-size="10" fill="white">• Sistema
+                                Salic</text>
+                            <text x="60" y="152" font-family="monospace" font-size="10" fill="white">• Mapas
+                                Culturais</text>
+                            <text x="60" y="169" font-family="monospace" font-size="10" fill="white">• Planilhas
+                                Excel</text>
+                        </g>
+                    </a>
+
+                    <path d="M 230 130 L 290 130" stroke="#667eea" stroke-width="3" marker-end="url(#arrow)" />
+
+                    <a href="raw.html">
+                        <g filter="url(#shadow)">
+                            <rect x="290" y="80" width="180" height="100" rx="8" fill="url(#rawGrad)" stroke="#C53030"
+                                stroke-width="3" />
+                            <text x="380" y="110" font-family="Arial" font-size="16" font-weight="bold"
+                                text-anchor="middle" fill="white">RAW</text>
+                            <text x="300" y="135" font-family="monospace" font-size="10" fill="white">• Dados
+                                brutos</text>
+                        </g>
+                    </a>
+
+                    <path d="M 470 130 L 530 130" stroke="#667eea" stroke-width="3" marker-end="url(#arrow)" />
+
+                    <a href="bronze.html">
+                        <g filter="url(#shadow)">
+                            <rect x="530" y="80" width="180" height="100" rx="8" fill="url(#bronzeGrad)"
+                                stroke="#A0522D" stroke-width="3" />
+                            <text x="620" y="110" font-family="Arial" font-size="16" font-weight="bold"
+                                text-anchor="middle" fill="white">BRONZE</text>
+                            <text x="540" y="135" font-family="monospace" font-size="10" fill="white">• Limpeza</text>
+                        </g>
+                    </a>
+
+                    <path d="M 710 130 L 770 130" stroke="#667eea" stroke-width="3" marker-end="url(#arrow)" />
+
+                    <a href="datavault.html">
+                        <g filter="url(#shadow)">
+                            <rect x="770" y="80" width="180" height="100" rx="8" fill="url(#silverGrad)"
+                                stroke="#A9A9A9" stroke-width="3" />
+                            <text x="860" y="110" font-family="Arial" font-size="16" font-weight="bold"
+                                text-anchor="middle" fill="#333">SILVER</text>
+                            <text x="780" y="135" font-family="monospace" font-size="10" fill="#333">• Data Vault
+                                2.1</text>
+                        </g>
+                    </a>
+
+                    <path d="M 950 130 L 1010 130" stroke="#667eea" stroke-width="3" marker-end="url(#arrow)" />
+
+                    <a href="gold.html">
+                        <g filter="url(#shadow)">
+                            <rect x="1010" y="80" width="180" height="100" rx="8" fill="url(#goldGrad)" stroke="#FFA500"
+                                stroke-width="3" />
+                            <text x="1100" y="110" font-family="Arial" font-size="16" font-weight="bold"
+                                text-anchor="middle" fill="#333">GOLD</text>
+                            <text x="1020" y="135" font-family="monospace" font-size="10" fill="#333">• KPIs</text>
+                        </g>
+                    </a>
+
+                    <rect x="50" y="250" width="1140" height="500" rx="10" fill="#F8F9FA" stroke="#DEE2E6"
+                        stroke-width="2" />
+                    <text x="600" y="300" font-family="Arial" font-size="14" text-anchor="middle"
+                        fill="#7F8C8D">Arquitetura Sovereign Data Lakehouse - MinC</text>
+                </svg>
+            </div>
+        </div>
+
+        <div class="architecture-card"
+            style="margin-top: 3rem; background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);">
+            <h2
+                style="color: #2c3e50; margin-bottom: 1.5rem; display: flex; align-items: center; gap: 0.5rem; font-size: 2rem;">
+                <span style="font-size: 2.5rem;">🛡️</span> Governança Ativa - Camada Transversal
+            </h2>
+            <div
+                style="background: white; padding: 1.5rem; border-radius: 12px; border-left: 4px solid #667eea; margin-bottom: 2rem;">
+                <p style="color: #4a5568; line-height: 1.8; font-size: 1.05rem;">
+                    A governança não é uma camada isolada — ela permeia <strong>todas</strong> as camadas do Lakehouse.
+                </p>
+            </div>
+        </div>
+
+        <div class="architecture-card tech-stack">
+            <h3>🛠️ Stack Tecnológico Completo</h3>
+            <div class="tech-items">
+                <span class="tech-item">Apache Spark</span>
+                <span class="tech-item">dbt (Data Build Tool)</span>
+                <span class="tech-item">Delta Lake</span>
+                <span class="tech-item">Python</span>
+                <span class="tech-item">Parquet</span>
+                <span class="tech-item">Data Vault 2.1</span>
+                <span class="tech-item">Power BI</span>
+                <span class="tech-item">AWS S3</span>
+            </div>
+        </div>
+    </div>
+
+    <div id="voice-assistant-root">
+        <gdm-live-audio></gdm-live-audio>
+    </div>
+
+    <script type="module" src="voice-assistant.js"></script>
+</body>
+
+</html>

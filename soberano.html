@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Data Vault + Databricks</title>
+    <style>
+        body {
+            background: #1a202c;
+            color: white;
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+        }
+
+        .card {
+            background: #2d3748;
+            padding: 3rem;
+            border-radius: 16px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+        }
+
+        h2 {
+            text-align: center;
+            color: #ffd700;
+            margin-bottom: 3rem;
+            font-size: 2rem;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="card">
+        <h2>🏛️ Data Vault + Databricks: Pilares de Valor</h2>
+
+        <svg viewBox="0 0 1300 500" xmlns="http://www.w3.org/2000/svg">
+            <defs>
+                <linearGradient id="grad1" x1="0%" y1="0%" x2="100%" y2="0%">
+                    <stop offset="0%" stop-color="#81E6D9" />
+                    <stop offset="100%" stop-color="#4FD1C5" />
+                </linearGradient>
+                <linearGradient id="grad2" x1="0%" y1="0%" x2="100%" y2="0%">
+                    <stop offset="0%" stop-color="#63B3ED" />
+                    <stop offset="100%" stop-color="#4299E1" />
+                </linearGradient>
+                <linearGradient id="grad3" x1="0%" y1="0%" x2="100%" y2="0%">
+                    <stop offset="0%" stop-color="#4299E1" />
+                    <stop offset="100%" stop-color="#2C5282" />
+                </linearGradient>
+                <linearGradient id="grad4" x1="0%" y1="0%" x2="100%" y2="0%">
+                    <stop offset="0%" stop-color="#718096" />
+                    <stop offset="100%" stop-color="#4A5568" />
+                </linearGradient>
+                <linearGradient id="grad5" x1="0%" y1="0%" x2="100%" y2="0%">
+                    <stop offset="0%" stop-color="#B794F4" />
+                    <stop offset="100%" stop-color="#805AD5" />
+                </linearGradient>
+                <linearGradient id="grad6" x1="0%" y1="0%" x2="100%" y2="0%">
+                    <stop offset="0%" stop-color="#F687B3" />
+                    <stop offset="100%" stop-color="#D53F8C" />
+                </linearGradient>
+
+                <filter id="shadow">
+                    <feDropShadow dx="0" dy="6" stdDeviation="8" flood-opacity="0.4" />
+                </filter>
+            </defs>
+
+            <!-- Linha de conexão com setas -->
+            <path d="M150,180 L250,180 L350,180 L550,180 L750,180 L950,180 L1150,180" stroke="#4A5568" stroke-width="8"
+                fill="none" />
+            <polygon points="250,180 240,170 240,190" fill="#4299E1" />
+            <polygon points="450,180 440,170 440,190" fill="#2C5282" />
+            <polygon points="650,180 640,170 640,190" fill="#4A5568" />
+            <polygon points="850,180 840,170 840,190" fill="#805AD5" />
+            <polygon points="1050,180 1040,170 1040,190" fill="#D53F8C" />
+
+            <!-- Pilar 1 -->
+            <g filter="url(#shadow)">
+                <circle cx="150" cy="180" r="60" fill="url(#grad1)" />
+                <text x="150" y="170" font-size="40" font-weight="bold" text-anchor="middle" fill="white">1</text>
+            </g>
+            <text x="150" y="260" font-size="20" font-weight="bold" text-anchor="middle"
+                fill="#81E6D9">Performance</text>
+            <text x="150" y="290" font-size="14" text-anchor="middle" fill="#CBD5E0">Escalabilidade em
+                carregamento</text>
+            <text x="150" y="310" font-size="14" text-anchor="middle" fill="#CBD5E0">e performance massiva</text>
+            <text x="150" y="335" font-size="14" font-weight="bold" text-anchor="middle" fill="#CBD5E0">Paralelização
+                via Spark</text>
+
+            <!-- Pilar 2 -->
+            <g filter="url(#shadow)">
+                <circle cx="350" cy="180" r="60" fill="url(#grad2)" />
+                <text x="350" y="170" font-size="40" font-weight="bold" text-anchor="middle" fill="white">2</text>
+            </g>
+            <text x="350" y="260" font-size="20" font-weight="bold" text-anchor="middle"
+                fill="#63B3ED">Harmonização</text>
+            <text x="350" y="290" font-size="14" text-anchor="middle" fill="#CBD5E0">Harmonização seamless e</text>
+            <text x="350" y="310" font-size="14" text-anchor="middle" fill="#CBD5E0">integração end-to-end</text>
+            <text x="350" y="335" font-size="14" font-weight="bold" text-anchor="middle" fill="#CBD5E0">Lineage via
+                Unity Catalog</text>
+
+            <!-- Pilar 3 -->
+            <g filter="url(#shadow)">
+                <circle cx="550" cy="180" r="60" fill="url(#grad3)" />
+                <text x="550" y="170" font-size="40" font-weight="bold" text-anchor="middle" fill="white">3</text>
+            </g>
+            <text x="550" y="260" font-size="20" font-weight="bold" text-anchor="middle" fill="#4299E1">Modelagem</text>
+            <text x="550" y="290" font-size="14" text-anchor="middle" fill="#CBD5E0">Modelagem robusta de dados</text>
+            <text x="550" y="310" font-size="14" text-anchor="middle" fill="#CBD5E0">históricos e multitemporais</text>
+            <text x="550" y="335" font-size="14" font-weight="bold" text-anchor="middle" fill="#CBD5E0">Data Vault +
+                Streaming/Batch</text>
+
+            <!-- Pilar 4 -->
+            <g filter="url(#shadow)">
+                <circle cx="750" cy="180" r="60" fill="url(#grad4)" />
+                <text x="750" y="170" font-size="40" font-weight="bold" text-anchor="middle" fill="white">4</text>
+            </g>
+            <text x="750" y="260" font-size="20" font-weight="bold" text-anchor="middle" fill="#A0AEC0">Soberania</text>
+            <text x="750" y="290" font-size="14" text-anchor="middle" fill="#CBD5E0">Conectividade direta a BI</text>
+            <text x="750" y="310" font-size="14" text-anchor="middle" fill="#CBD5E0">e ferramentas de reporting</text>
+            <text x="750" y="335" font-size="14" font-weight="bold" text-anchor="middle" fill="#CBD5E0">LLM nativo para
+                acesso aos dados</text>
+
+            <!-- Pilar 5 -->
+            <g filter="url(#shadow)">
+                <circle cx="950" cy="180" r="60" fill="url(#grad5)" />
+                <text x="950" y="170" font-size="40" font-weight="bold" text-anchor="middle" fill="white">5</text>
+            </g>
+            <text x="950" y="260" font-size="20" font-weight="bold" text-anchor="middle"
+                fill="#B794F4">Integração</text>
+            <text x="950" y="290" font-size="14" text-anchor="middle" fill="#CBD5E0">Uso de features nativas</text>
+            <text x="950" y="310" font-size="14" text-anchor="middle" fill="#CBD5E0">(Auto Loader, DLT, LakeFlow)</text>
+            <text x="950" y="335" font-size="14" font-weight="bold" text-anchor="middle" fill="#CBD5E0">Pipelines
+                declarativos e incrementais</text>
+
+            <!-- Pilar 6 -->
+            <g filter="url(#shadow)">
+                <circle cx="1150" cy="180" r="60" fill="url(#grad6)" />
+                <text x="1150" y="170" font-size="40" font-weight="bold" text-anchor="middle" fill="white">6</text>
+            </g>
+            <text x="1150" y="260" font-size="20" font-weight="bold" text-anchor="middle" fill="#F687B3">Uso
+                Multimodal</text>
+            <text x="1150" y="290" font-size="14" text-anchor="middle" fill="#CBD5E0">Plataforma unificada para
+                BI,</text>
+            <text x="1150" y="310" font-size="14" text-anchor="middle" fill="#CBD5E0">ML, streaming e API-based</text>
+            <text x="1150" y="335" font-size="14" font-weight="bold" text-anchor="middle"
+                fill="#CBD5E0">workloads</text>
+        </svg>
+    </div>
+</body>
+
+</html>
