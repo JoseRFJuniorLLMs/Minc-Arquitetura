@@ -36,19 +36,6 @@ function decode(base64) {
   return bytes;
 }
 
-function downsample(buffer, inRate, outRate) {
-  if (inRate === outRate) return buffer;
-  const ratio = inRate / outRate;
-  const newLength = Math.round(buffer.length / ratio);
-  const result = new Float32Array(newLength);
-  let offset = 0;
-  for (let i = 0; i < newLength; i++) {
-    result[i] = buffer[Math.floor(offset)];
-    offset += ratio;
-  }
-  return result;
-}
-
 function createBlob(data) {
   const int16 = new Int16Array(data.length);
   for (let i = 0; i < data.length; i++) {
@@ -76,6 +63,25 @@ async function decodeAudioData(data, ctx, sampleRate, numChannels) {
   buffer.copyToChannel(float32, 0);
   return buffer;
 }
+
+/* =======================
+   AUDIO WORKLET PROCESSOR
+======================= */
+const WORKLET_CODE = `
+class AudioProcessor extends AudioWorkletProcessor {
+  process(inputs, outputs, parameters) {
+    const input = inputs[0];
+    if (input && input.length > 0) {
+      const channelData = input[0];
+      // Envia os dados de áudio para o thread principal
+      this.port.postMessage(channelData);
+    }
+    return true; // Continua processando
+  }
+}
+
+registerProcessor('audio-processor', AudioProcessor);
+`;
 
 /* =======================
    COMPONENT
@@ -139,12 +145,35 @@ class GdmLiveAudio extends LitElement {
 
     this.mediaStream = null;
     this.sourceNode = null;
-    this.scriptProcessorNode = null;
+    this.workletNode = null;
     this.nextStartTime = 0;
     this.sources = new Set();
 
     this.sofiaPrompt = '';
+    this.session = null;
+    this.workletInitialized = false;
+
     this.loadSofiaPrompt();
+    this.initAudioWorklet();
+  }
+
+  async initAudioWorklet() {
+    try {
+      // Cria blob com o código do worklet
+      const blob = new Blob([WORKLET_CODE], { type: 'application/javascript' });
+      const workletUrl = URL.createObjectURL(blob);
+
+      await this.inputAudioContext.audioWorklet.addModule(workletUrl);
+      this.workletInitialized = true;
+      console.log('✅ AudioWorklet inicializado com sucesso');
+
+      // Limpa o blob URL
+      URL.revokeObjectURL(workletUrl);
+    } catch (error) {
+      console.error('❌ Erro ao inicializar AudioWorklet:', error);
+      console.log('⚠️ Fallback para ScriptProcessorNode (deprecated)');
+      this.workletInitialized = false;
+    }
   }
 
   async loadSofiaPrompt() {
@@ -163,24 +192,36 @@ class GdmLiveAudio extends LitElement {
 
   async initClient() {
     this.client = new GoogleGenAI({
-      apiKey: '',
+      apiKey: 'AIzaSyAl-QBD2j2zY9Tt3Yn5j1wwHndNr1ChP1s',
     });
-
-    try {
-      await this.initSession();
-    } catch (e) {
-      console.error('Erro na sessão:', e);
-    }
   }
 
   async initSession() {
+    // Fecha sessão anterior se existir
+    if (this.session) {
+      try {
+        await this.session.close();
+      } catch (e) {
+        console.log('Sessão anterior já estava fechada');
+      }
+    }
+
     this.session = await this.client.live.connect({
       model: 'gemini-2.5-flash-native-audio-preview-12-2025',
       callbacks: {
         onopen: () => {
-          console.log('Sessão Sofia aberta');
+          console.log('🎙️ Sessão Sofia aberta');
         },
         onmessage: async (message) => {
+          if (message.serverContent?.interrupted) {
+            for (const source of this.sources.values()) {
+              source.stop();
+              this.sources.delete(source);
+            }
+            this.nextStartTime = 0;
+            return;
+          }
+
           const audio = message.serverContent?.modelTurn?.parts?.[0]?.inlineData;
           if (!audio) return;
 
@@ -209,10 +250,23 @@ class GdmLiveAudio extends LitElement {
           this.sources.add(source);
         },
         onerror: (e) => {
-          console.error('Erro:', e);
+          console.error('❌ Erro na sessão:', e);
+
+          // Verifica se é erro de API key
+          if (e.message && (
+            e.message.includes('API key') ||
+            e.message.includes('invalid') ||
+            e.message.includes('expired') ||
+            e.message.includes('authentication') ||
+            e.message.includes('401') ||
+            e.message.includes('403')
+          )) {
+            console.error('🔑 ❌ CHAVE API EXPIRADA OU INVÁLIDA! Verifique a API key do Gemini.');
+          }
         },
         onclose: (e) => {
-          console.log('Sessão fechada:', e.reason);
+          console.log('🔌 Sessão fechada:', e.reason);
+          this.session = null;
         },
       },
       config: {
@@ -230,66 +284,183 @@ class GdmLiveAudio extends LitElement {
         },
       },
     });
-
-    this.session.on('interrupted', () => {
-      for (const source of this.sources.values()) {
-        source.stop();
-        this.sources.delete(source);
-      }
-      this.nextStartTime = 0;
-    });
   }
 
   async startConversation() {
-    await this.inputAudioContext.resume();
-    await this.outputAudioContext.resume();
+    try {
+      await this.inputAudioContext.resume();
+      await this.outputAudioContext.resume();
 
-    this.mediaStream = await navigator.mediaDevices.getUserMedia({ audio: true });
-    this.sourceNode = this.inputAudioContext.createMediaStreamSource(this.mediaStream);
+      // Inicializa nova sessão
+      await this.initSession();
+
+      this.mediaStream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      this.sourceNode = this.inputAudioContext.createMediaStreamSource(this.mediaStream);
+
+      if (this.workletInitialized) {
+        // ✅ Usa AudioWorkletNode (moderno)
+        await this.setupAudioWorklet();
+      } else {
+        // ⚠️ Fallback para ScriptProcessorNode (deprecated)
+        this.setupScriptProcessor();
+      }
+
+      this.isActive = true;
+      console.log('🎤 Conversa iniciada');
+    } catch (error) {
+      console.error('❌ Erro ao iniciar conversa:', error);
+
+      // Verifica se é erro de API key na inicialização
+      if (error.message && (
+        error.message.includes('API key') ||
+        error.message.includes('invalid') ||
+        error.message.includes('expired') ||
+        error.message.includes('authentication') ||
+        error.message.includes('401') ||
+        error.message.includes('403')
+      )) {
+        console.error('🔑 ❌ CHAVE API EXPIRADA OU INVÁLIDA! Verifique a API key do Gemini.');
+        alert('❌ Chave API do Gemini expirada ou inválida! Verifique o console para mais detalhes.');
+      }
+
+      this.stopConversation();
+    }
+  }
+
+  async setupAudioWorklet() {
+    console.log('✅ Usando AudioWorkletNode (moderno)');
+
+    this.workletNode = new AudioWorkletNode(this.inputAudioContext, 'audio-processor');
+
+    // Recebe dados de áudio do worklet
+    this.workletNode.port.onmessage = (event) => {
+      if (!this.isActive || !this.session) {
+        return;
+      }
+
+      const pcm = event.data; // Float32Array
+
+      try {
+        this.session.sendRealtimeInput({
+          media: createBlob(pcm),
+        });
+      } catch (error) {
+        console.warn('⚠️ Erro ao enviar áudio:', error.message);
+
+        if (error.message && (
+          error.message.includes('API key') ||
+          error.message.includes('invalid') ||
+          error.message.includes('expired') ||
+          error.message.includes('authentication') ||
+          error.message.includes('401') ||
+          error.message.includes('403')
+        )) {
+          console.error('🔑 ❌ CHAVE API EXPIRADA OU INVÁLIDA!');
+        }
+
+        this.stopConversation();
+      }
+    };
+
+    this.sourceNode.connect(this.workletNode);
+    this.workletNode.connect(this.inputAudioContext.destination);
+  }
+
+  setupScriptProcessor() {
+    console.warn('⚠️ Usando ScriptProcessorNode (deprecated) - fallback');
 
     this.scriptProcessorNode = this.inputAudioContext.createScriptProcessor(256, 1, 1);
 
     this.scriptProcessorNode.onaudioprocess = (e) => {
-      if (!this.isActive || !this.session) return;
+      if (!this.isActive || !this.session) {
+        return;
+      }
 
       const pcm = e.inputBuffer.getChannelData(0);
 
-      this.session.sendRealtimeInput({
-        media: createBlob(pcm),
-      });
+      try {
+        this.session.sendRealtimeInput({
+          media: createBlob(pcm),
+        });
+      } catch (error) {
+        console.warn('⚠️ Erro ao enviar áudio:', error.message);
+
+        if (error.message && (
+          error.message.includes('API key') ||
+          error.message.includes('invalid') ||
+          error.message.includes('expired') ||
+          error.message.includes('authentication') ||
+          error.message.includes('401') ||
+          error.message.includes('403')
+        )) {
+          console.error('🔑 ❌ CHAVE API EXPIRADA OU INVÁLIDA!');
+        }
+
+        this.stopConversation();
+      }
     };
 
     this.sourceNode.connect(this.scriptProcessorNode);
     this.scriptProcessorNode.connect(this.inputAudioContext.destination);
-
-    this.isActive = true;
   }
 
   stopConversation() {
     this.isActive = false;
+    console.log('🛑 Conversa parada');
 
-    if (this.mediaStream) {
-      this.mediaStream.getTracks().forEach((t) => t.stop());
+    // Para o worklet se existir
+    if (this.workletNode) {
+      this.workletNode.disconnect();
+      this.workletNode.port.onmessage = null;
+      this.workletNode = null;
     }
 
+    // Para o script processor se existir (fallback)
     if (this.scriptProcessorNode) {
       this.scriptProcessorNode.disconnect();
+      this.scriptProcessorNode.onaudioprocess = null;
+      this.scriptProcessorNode = null;
     }
 
     if (this.sourceNode) {
       this.sourceNode.disconnect();
+      this.sourceNode = null;
     }
 
+    if (this.mediaStream) {
+      this.mediaStream.getTracks().forEach((t) => t.stop());
+      this.mediaStream = null;
+    }
+
+    // Para todos os áudios de saída
     for (const source of this.sources.values()) {
       source.stop();
       this.sources.delete(source);
     }
+
+    // Fecha a sessão por último
+    if (this.session) {
+      try {
+        this.session.close();
+      } catch (e) {
+        console.log('Erro ao fechar sessão:', e);
+      }
+      this.session = null;
+    }
   }
 
   async handleClick() {
-    this.isActive
-      ? this.stopConversation()
-      : await this.startConversation();
+    if (this.isActive) {
+      this.stopConversation();
+    } else {
+      await this.startConversation();
+    }
+  }
+
+  // Cleanup quando o componente é destruído
+  disconnectedCallback() {
+    super.disconnectedCallback();
+    this.stopConversation();
   }
 
   render() {

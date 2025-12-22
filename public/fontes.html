@@ -82,6 +82,14 @@
             text-shadow: 0 1px 3px rgba(0, 0, 0, 0.8);
         }
     </style>
+    <script type="importmap">
+{
+  "imports": {
+    "@google/genai": "https://cdn.jsdelivr.net/npm/@google/genai/+esm",
+    "lit": "https://cdn.jsdelivr.net/npm/lit@3/+esm"
+  }
+}
+</script>
 </head>
 
 <body>
@@ -282,6 +290,10 @@
             renderer.setSize(window.innerWidth, window.innerHeight);
         }
     </script>
+    <div id="voice-assistant-root">
+        <gdm-live-audio></gdm-live-audio>
+    </div>
+    <script type="module" src="voice-assistant.js"></script>
 </body>
 
 </html>
