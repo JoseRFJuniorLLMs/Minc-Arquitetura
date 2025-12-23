@@ -192,7 +192,7 @@ class GdmLiveAudio extends LitElement {
 
   async initClient() {
     this.client = new GoogleGenAI({
-      apiKey: 'AIzaSyAl-QBD2j2zY9Tt3Yn5j1wwHndNr1ChP1s',
+      apiKey: '',
     });
   }
 
